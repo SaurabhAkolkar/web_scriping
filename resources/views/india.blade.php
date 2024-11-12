@@ -46,6 +46,8 @@
                     $new_rt = 0;
                 }
                 $data_second_table = [];
+                $formula9_data = [];
+                $formula10_data = [];
             @endphp
             @foreach ($last_page as $k => $item)
                 @php
@@ -91,10 +93,14 @@
                     $wt2 = isset($item['wt2']) ? intval($item['wt2']) : 0;
                     $wt1 = isset($item['wt1']) ? intval($item['wt1']) : 0;
 
+                    $phn3 = isset($item['phn3']) ? intval($item['phn3']) : 0;
                     $phn2 = isset($item['phn2']) ? intval($item['phn2']) : 0;
                     $phn1 = isset($item['phn1']) ? intval($item['phn1']) : 0;
+
+                    $prtg3 = isset($item['prtg3']) ? intval($item['prtg3']) : 0;
                     $prtg2 = isset($item['prtg2']) ? intval($item['prtg2']) : 0;
                     $prtg1 = isset($item['prtg1']) ? intval($item['prtg1']) : 0;
+
                     $formdiwn3 = intval($pphn_form - $dwin3);
                     $yellow_est = $phn2 - 1 + $prtg2 - $phn2;
 
@@ -107,7 +113,7 @@
                     }
 
                     $prd1 = isset($item['pdr1']) ? intval(isset($item['pdr1'])) : 0;
-                    $prd1 = isset($item['pdr1']) ? intval(isset($item['pdr1'])) : 0;
+                    $prd2 = isset($item['pdr2']) ? intval(isset($item['pdr2'])) : 0;
 
                     $formdiwn2 = intval($phn_form - $dwin2);
                     $yellow_est1 = $phn1 - 1 + $prtg1 - $phn1;
@@ -386,9 +392,9 @@
                         '                              ',
                     ];
                     $prtg_arr = explode(' ', $_p_rtg);
-                    $prtg_a2 = $prtg_arr[2];
-                    $prtg_a1 = $prtg_arr[1];
-                    $prtg_a0 = $prtg_arr[0];
+                    $prtg_a2 = isset($prtg_arr[2]) ? $prtg_arr[2] : 0;
+                    $prtg_a1 = isset($prtg_arr[1]) ? $prtg_arr[1]: 0 ;
+                    $prtg_a0 = isset($prtg_arr[0]) ? $prtg_arr[0] : 0;
                     $_1 = explode('(', $item['no'])[0];
                     $current_rating = $item['current_rating'];
                     $_s_1 = $prtg_a1 - $_1;
@@ -481,11 +487,12 @@
                         $prtg_a0,
                     ];
                     $current_dist = $item['current_distance'];
-                    $p_distance = $item['dist1'];
+                    $p_distance = isset($item['dist1']) ?  $item['dist1'] : 0;
                     $dist_ans = str_replace('0', '', $current_dist - $p_distance);
                     $rtg = $current_rating - $prtg_a2;
                     $all_ans = $rtg + $_s_1 + ($prtg_a1 - $prtg_a0) + $dwin1;
-                    $codds = $item['codds'];
+                    $all_ans1 = $rtg + $_s_1 + ($prtg_a1 - $prtg_a0) + $dwin2;
+                    $codds = isset($item['codds']) ? $item['codds'] : 0;
                     $data_second_table7[$key] = [
                         $_1,
                         $class_name,
@@ -517,6 +524,7 @@
                     } else {
                         $fa = $all_ans;
                     }
+
                     $data_second_table8[$key] = [
                         $dist_ans,
                         $_1,
@@ -535,22 +543,183 @@
                         '           ',
                     ];
 
+                    $date1 = isset($item['date1']) ? $item['date1'] : "";
+                    $date2 = isset($item['date2']) ? $item['date2'] : "";
                     $data_second_table9[$key] = [
                         $dist_ans,
-                        $_1,$item['hname'],
+                        $_1,
+                        $item['hname'],
                         $class_name,
-                        '            ',
                         $codds,
                         '        ',
+                        $date1,
                         $dwin1,
                         '           ',
                         $prtg_a0,
                         $fa,
-                        '           ',
+                        (abs($dwin1)+abs($prtg_a0)+abs($fa)),
                         '                  ',
-                        '                ',
+                        "                  "
                     ];
 
+                    $formula9_team1 = [
+                        "                  ",
+                        $_1,
+                        $item['hname'],
+                        $class_name,
+                        $codds,
+                        "                  ",
+                        $date1,
+                        $dwin1,
+                        "                  ",
+                        $prtg_a0,
+                        $fa,
+                        (abs($dwin1)+abs($prtg_a0)+abs($fa)),
+                        "                  ",
+                        "                  ",
+                        "                  ",
+                        "                  ",
+                        "                  ",
+                        "                  ",
+                        "                  ",
+                        "                  ",
+                        "                  ",
+                        "                  ",
+                        ($dwin1-$prtg_a0),
+                        "                  "
+                    ];
+                    $phourse_no1 = $phn2-$phn1;
+                    $phourse_no2 = $phn3-$phn2;
+                    $class_name2 = isset($item['class_name2']) ? $item['class_name2'] : "";
+                    $ciodds = isset($item['ciodds']) ? $item['ciodds'] : 0;
+                    $pi2 = isset($item['pi2']) ? $item['pi2'] : 0;
+                    
+                    $formula9_team2 = [
+                        "                  ",
+                        "                  ",
+                        "                  ",
+                        $class_name2,
+                        $ciodds,
+                        "                  ",
+                        $date2,
+                        $dwin2,
+                        "                  ",
+                        $pi2,
+                        "                  ",
+                        "                  ",
+                        "                  ",
+                        $phourse_no1,
+                        ($pi2-$phourse_no1),
+                        ($phn1-($pi2-$phourse_no1)),
+                        "                  ",
+                        ($prtg1-$prtg2),
+                        $phourse_no1,
+                        ($phn1-($pi2-$phourse_no1)),
+                         $dwin2,
+                         (($prtg1-$prtg2) + $phourse_no1 +  ($phn1-($pi2-$phourse_no1)) + $dwin2),
+                        ($dwin2-$pi2),
+                        (((($prtg1-$prtg2) + $phourse_no1 +  ($phn1-($pi2-$phourse_no1)) + $dwin2)) - ($dwin2-$pi2))
+                    ];
+                    
+                    
+                    
+                    $class_name3 = isset($item['class_name3']) ? $item['class_name3'] : " ";
+                    $ciodds3 =  isset($item['ciodds3']) ? $item['ciodds3'] : 0; 
+                    $date3 = isset($item['date3']) ? $item['date3']: "";
+                    $pi3 = isset($item['pi3']) ? $item['pi3'] : 0;
+                    
+
+
+                    $formula9_team3 = [
+                        "                  ",
+                        "                  ",
+                        "                  ",
+                        $class_name3,
+                        $ciodds3,
+                        "                  ",
+                        $date3,
+                        $dwin3,
+                        "                  ",
+                        $pi3,
+                        "                  ",
+                        "                  ",
+                        "                  ",
+                        $phourse_no2,
+                        ($pi3-$phourse_no2),
+                        ($phn1-($pi3-$phourse_no2)),
+                        "                  ",
+                        ($prtg2-$prtg3),
+                        $phourse_no2,
+                        ($phn1-($pi3-$phourse_no2)),
+                        $dwin3,
+                        (($prtg2-$prtg3) + $phourse_no2 + ($phn1-($pi3-$phourse_no2)) + $dwin3),
+                        ($dwin3-$pi3),
+                        ((($prtg2-$prtg3) + $phourse_no2 + ($phn1-($pi3-$phourse_no2)) + $dwin3) - ($dwin3-$pi3))
+                    ];
+
+                    array_push($formula9_data,$formula9_team1);
+                    array_push($formula9_data,$formula9_team2);
+                    array_push($formula9_data,$formula9_team3);
+
+                    
+                    
+                    // 10 start 
+
+                    $formula10_team1 = [
+                        "                  ",
+                        $_1,
+                        $item['hname'],
+                        $class_name,
+                        $codds,
+                        "                  ",
+                        $date1,
+                        $dwin1,
+                        "                  ",
+                        $prtg_a0,
+                        $fa,
+                        (abs($dwin1)+abs($prtg_a0)+abs($fa)),
+                        "                  "
+                    ];
+                    $phourse_no1 = $phn2-$phn1;
+                    $phourse_no2 = $phn3-$phn2;
+                    
+                    $formula10_team2 = [
+                        "                  ",
+                        "                  ",
+                        "                  ",
+                        $class_name2,
+                        $ciodds,
+                        "                  ",
+                        $date2,
+                        $dwin2,
+                        "                  ",
+                        $pi2,
+                        (((($prtg1-$prtg2) + $phourse_no1 +  ($phn1-($pi2-$phourse_no1)) + $dwin2)) - ($dwin2-$pi2)),
+                        ($dwin2 + $pi2 + (((($prtg1-$prtg2) + $phourse_no1 +  ($phn1-($pi2-$phourse_no1)) + $dwin2)) - ($dwin2-$pi2))),
+                        "                  "
+                    ];
+
+                    $formula10_team3 = [
+                        "                  ",
+                        "                  ",
+                        "                  ",
+                        $class_name3,
+                        $ciodds3,
+                        "                  ",
+                        $date3,
+                        $dwin3,
+                        "                  ",
+                        $pi3,
+                        ((($prtg2-$prtg3) + $phourse_no2 + ($phn1-($pi3-$phourse_no2)) + $dwin3) - ($dwin3-$pi3)),
+                        ($dwin3 + $pi3 + ((($prtg2-$prtg3) + $phourse_no2 + ($phn1-($pi3-$phourse_no2)) + $dwin3) - ($dwin3-$pi3))),
+                        "                  "
+
+                    ];
+
+                    array_push($formula10_data,$formula10_team1);
+                    array_push($formula10_data,$formula10_team2);
+                    array_push($formula10_data,$formula10_team3);
+                   
                 @endphp
                 <tr>
                     <td style="width: 4.33%">{{ $item['hname'] }}</td>
@@ -819,9 +988,6 @@
             @endforeach
         </tbody>
     </table>
-
-
-
 
     <br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>
     <h1>Formula: 2</h1>
@@ -1138,7 +1304,7 @@
 
 
     <br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>
-    <h1>Formula: 8 </h1>
+    <h1>Formula: 8 {{ $event_date }}</h1>
     <h3>{{ $heading }}</h3>
     <h1>******************************************************************************************************</h1>
 
@@ -1160,7 +1326,7 @@
                 {
                     return intval($b[0]) - intval($a[0]);
                 }
-                usort($data_second_table9, 'sortByScoreDesc');
+                //usort($data_second_table9, 'sortByScoreDesc');
                 // krsort($data_second_table3);
             @endphp
             <tr>
@@ -1171,9 +1337,9 @@
                 <td>1</td>
                 <td>HNAME</td>
                 <td>2 <b>(T)</b> </td>
-                <td>CLASS ***</td>
                 <td>P.ODDS****</td>
                 <td>C.ODDS****</td>
+                <td>CLASS ***</td>
                 <td>LTG ***</td>
                 <td>**</td>
                 <td>F/P ****</td>
@@ -1188,6 +1354,117 @@
                     @foreach ($item as $i)
                         <td style="text-align: start;">{!! $i !!}</td>
                     @endforeach
+                </tr>
+            @endforeach
+        </tbody>
+    </table>
+
+
+
+    <br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>
+    <h1>Formula: 9 {{ $event_date }}</h1>
+    <h3>{{ $heading }}</h3>
+    <h1>******************************************************************************************************</h1>
+
+    <table class="table table-bordered mt-5" style="page-break-after: always;">
+        <tbody>
+            <tr>
+                <td>1</td>
+                <td>HNAME</td>
+                <td>2 <b>(T)</b> </td>
+                <td>P.ODDS****</td>
+                <td>C.ODDS****</td>
+                <td>CLASS ***</td>
+                <td>LTG ***</td>
+                <td>**</td>
+                <td>F/P ****</td>
+                <td>Final A***</td>
+                <td>**</td>
+                <td>***</td>
+                <td>T/S</td>
+                <td>FP/TS</td>
+                <td>A</td>
+                <td>**</td>
+                <td>Rtg</td>
+                <td>T/S</td>
+                <td>P Ans</td>
+                <td>LTG</td>
+                <td>ANS</td>
+                <td>LTG-F/P</td>
+                <td>FINAL ANS</td>
+
+
+            </tr>
+            @foreach ($formula9_data as $k => $item)
+                <tr>  
+                    <td>{{ $item[1] }}</td>
+                    <td>{{ $item[2] }}</td>
+                    <td>{{ $item[3] }}</td>
+                    <td>{{ $item[4] }}</td>
+                    <td>{{ $item[5] }}</td>
+                    <td>{{ $item[6] }}</td>
+                    <td>{{ $item[7] }}</td>
+                    <td>{{ $item[8] }}</td>
+                    <td>{{ $item[9] }}</td>
+                    <td>{{ $item[10] }}</td>
+                    <td>{{ $item[11] }}</td>
+                    <td>{{ $item[12] }}</td>
+                    <td>{{ $item[13] }}</td>
+                    <td>{{ $item[14] }}</td>
+                    <td>{{ $item[15] }}</td>
+                    <td>{{ $item[16] }}</td>
+                    <td>{{ $item[17] }}</td>
+                    <td>{{ $item[18] }}</td>
+                    <td>{{ $item[19] }}</td>
+                    <td>{{ $item[20] }}</td>
+                    <td>{{ $item[21] }}</td>
+                    <td>{{ $item[22] }}</td>
+                    <td>{{ $item[23] }}</td>
+                </tr>
+            @endforeach
+        </tbody>
+    </table>
+
+
+    <br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>
+    <h1>Formula: 10 {{ $event_date }}</h1>
+    <h3>{{ $heading }}</h3>
+    <h1>******************************************************************************************************</h1>
+
+    <table class="table table-bordered mt-5" style="page-break-after: always;">
+        <tbody>
+            <tr>
+                <td>1</td>
+                <td>HNAME</td>
+                <td>2 <b>(T)</b> </td>
+                <td>P.ODDS****</td>
+                <td>C.ODDS****</td>
+                <td>CLASS ***</td>
+                <td>LTG ***</td>
+                <td>**</td>
+                <td>F/P ****</td>
+                <td>Final A***</td>
+                <td>**</td>
+                <td>***</td>
+                
+
+
+            </tr>
+            @foreach ($formula10_data as $k => $item)
+                <tr>  
+                    <td>{{ $item[1] }}</td>
+                    <td>{{ $item[2] }}</td>
+                    <td>{{ $item[3] }}</td>
+                    <td>{{ $item[4] }}</td>
+                    <td>{{ $item[5] }}</td>
+                    <td>{{ $item[6] }}</td>
+                    <td>{{ $item[7] }}</td>
+                    <td>{{ $item[8] }}</td>
+                    <td>{{ $item[9] }}</td>
+                    <td>{{ $item[10] }}</td>
+                    <td>{{ $item[11] }}</td>
+                    <td>{{ $item[12] }}</td>
+                    
                 </tr>
             @endforeach
         </tbody>

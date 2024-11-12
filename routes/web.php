@@ -40,3 +40,7 @@ Route::get('/australia-input','GoutteController@australia_input');
 Route::get('/australia-output','GoutteController@australia_output');
 
 
+Route::get('/add-user','GoutteController@add_user_view');
+Route::post('/add-user','GoutteController@add_user');
+
+

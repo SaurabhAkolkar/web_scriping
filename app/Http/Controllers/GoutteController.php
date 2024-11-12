@@ -531,12 +531,12 @@ class GoutteController extends Controller
             });
 
             $emptyRemoved = array_filter($hourse_data1);
-            $two_element_array = array_slice($emptyRemoved, -2);
+            $two_element_array = array_slice($emptyRemoved, -3);
             $clean_hn = preg_replace('/[^A-Za-z0-9\-]/', '', $sub["hourse_name"]);
             if (count($two_element_array) > 1) {
                 $sub["ppor"] = $two_element_array[0][0];
-                $sub["por"] = $two_element_array[1][0];
                 $sub["ppfr"] = $two_element_array[0][2];
+                $sub["por"] = $two_element_array[1][0];
                 $sub["pfr"] = $two_element_array[1][2];
 
                 $craw2 = $goutteClient->request('GET', $domain_met . $two_element_array[0][1]);
@@ -754,6 +754,8 @@ class GoutteController extends Controller
         $goutteClient->setClient($guzzleClient);
         $baseurl = $req->center;
         
+        preg_match('/\d{4}-\d{2}-\d{2}/', $baseurl, $event_date);
+        $e_date = $event_date[0];
 
         $craw_current_dist = $goutteClient->request('GET', $baseurl);
         $hourse_current_distance = $craw_current_dist->filter('.archive_time')->each(function ($n) {
@@ -814,6 +816,7 @@ class GoutteController extends Controller
                         $sub["prtg" . $count] = $n->filter('.stats-table-row')->eq(10)->text();
                         $sub["wt" . $count] = $n->filter('.stats-table-row')->eq(7)->text();
                         $sub["dwin" . $count] = $n->filter('.stats-table-row')->eq(8)->text();
+                        $sub["date" . $count] = $n->filter('.stats-table-row')->eq(1)->text();
                     }
                 } catch (\Throwable $th) {
                     return 0;
@@ -899,8 +902,10 @@ class GoutteController extends Controller
                     }
                     try {
                         if (str_contains($sub['hname'], $n->filter('td')->eq(2)->filter("a")->text()) || str_contains($n->filter('td')->eq(2)->filter("a")->text(), $sub['hname'])) {
+                            $sub['pi2'] = $n->filter('td')->eq(0)->text();
                             $sub['phn2'] = $n->filter('td')->eq(1)->text();
                             $sub['pdr1'] = $n->filter('td')->eq(8)->text();
+                            $sub['ciodds'] = $n->filter('td')->eq(13)->text();
                         }
                     } catch (\Throwable $th) {
                         return 0;
@@ -911,10 +916,36 @@ class GoutteController extends Controller
                 $sub[$sub['phn1']] = $final2;
             }
 
+
+
+            // link 3 start
+            try {
+                $craw3 = $goutteClient->request('GET', $sub["link3"]);
+                $craw3->filter('.center_heading')->each(function ($n) use (&$sub) {
+                    $sub['class_name3'] = $n->text();
+                });
+                $craw3->filter('.dividend_tr')->each(function ($n) use (&$sub){
+                    try {
+                        if (str_contains($sub['hname'], $n->filter('td')->eq(2)->filter("a")->text()) || str_contains($n->filter('td')->eq(2)->filter("a")->text(), $sub['hname'])) {
+                            $sub['pi3'] = $n->filter('td')->eq(0)->text();
+                            $sub['phn3'] = $n->filter('td')->eq(1)->text();
+                            $sub['pdr3'] = $n->filter('td')->eq(8)->text();
+                            $sub['ciodds3'] = $n->filter('td')->eq(13)->text();
+                        }
+                    } catch (\Throwable $th) {
+                        return 0;
+                    }
+                });
+
+            } catch (\Throwable $th) {
+                
+            }
+
             array_push($main_arr, $sub);
         }
-
-        return view("india")->with("last_page", $main_arr)->with('heading',$heading[0]);
+        return view("india")
+        ->with("last_page", $main_arr)->with('heading',$heading[0])
+        ->with("event_date",$e_date);
 
     }
 
@@ -943,6 +974,17 @@ class GoutteController extends Controller
 
         dd($data);
        
+    }
+
+    public function add_user_view() {
+        return view("add_user");
+    }
+
+    public function add_user(Request $req) {
+        $number =  $req->input('number');
+        $name =  $req->input('name');
+        $e = DB::update('update user set name= ? where mobile = ?', [$name,$number]);
+        return view("add_user");
     }
 
 }
