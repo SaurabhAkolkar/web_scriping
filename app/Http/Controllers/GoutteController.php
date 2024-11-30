@@ -479,6 +479,7 @@ class GoutteController extends Controller
             } catch (\Throwable $th) {
             }
         });
+        $race_title = $race_distance_array[$race_no - 1];
 
         preg_match("/\((\d+)\s.*?\)/", $race_distance_array[$race_no - 1], $matches);
         
@@ -533,6 +534,10 @@ class GoutteController extends Controller
             $emptyRemoved = array_filter($hourse_data1);
             $two_element_array = array_slice($emptyRemoved, -3);
             $clean_hn = preg_replace('/[^A-Za-z0-9\-]/', '', $sub["hourse_name"]);
+            if(count($two_element_array) > 2){
+                $sub["3or"] = $two_element_array[2][0];
+                $sub["3fr"] = $two_element_array[2][2];
+            }
             if (count($two_element_array) > 1) {
                 $sub["ppor"] = $two_element_array[0][0];
                 $sub["ppfr"] = $two_element_array[0][2];
@@ -735,7 +740,7 @@ class GoutteController extends Controller
             }
             array_push($main_arr, $sub);
         }
-        return view("ast")->with("last_page", $main_arr);
+        return view("ast")->with("last_page", $main_arr)->with("race_title",$race_title);
 
     }
 
