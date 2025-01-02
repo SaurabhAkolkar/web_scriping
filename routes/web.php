@@ -44,3 +44,5 @@ Route::get('/add-user','GoutteController@add_user_view');
 Route::post('/add-user','GoutteController@add_user');
 
 
+Route::get('/uk-data','GoutteController@uk_data_view');
+Route::post('/uk-data','GoutteController@uk_data');

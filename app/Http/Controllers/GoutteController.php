@@ -5,9 +5,8 @@ namespace App\Http\Controllers;
 use Goutte\Client;
 use GuzzleHttp\Client as GuzzleClient;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Str;
-use Laravel\Dusk\Browser;
-use Illuminate\Support\Facades\Artisan;
 
 class GoutteController extends Controller
 {
@@ -313,15 +312,14 @@ class GoutteController extends Controller
         $domain = "https://www.attheraces.com";
         $baseurl = $req->center;
         $arr = explode('/', $baseurl);
-        
+
         $goutteClient->setServerParameter('HTTP_USER_AGENT', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/109.0.0.0 Safari/537.36');
         $craw = $goutteClient->request('GET', $baseurl);
         // dd($craw->text());
         $hourse_data = $craw->filter('.js-card__area .card-wrapper .card-body .card-entry')->each(function ($n) {
             return ["form" => $n->filter('.card-form__stats')->text(), "LHN" => $n->filter('.card-section .card-cell--no-draw .card-no-draw__inner')->text(), "HNAME" => $n->filter('.horse__link')->text(), "LOR" => $n->filter('.text-pill--steel')->text(), "hl" => $n->filter('.horse__link')->attr('href')];
         });
-        
-        
+
         $main_arr = [];
         foreach ($hourse_data as $key => $data) {
             $craw = $goutteClient->request('GET', $domain . $data["hl"]);
@@ -329,7 +327,7 @@ class GoutteController extends Controller
 
                 try {
                     $nn->filter('td')->eq(1)->text();
-                    return [$nn->filter('td')->eq(3)->filter('a')->attr('href'), $nn->filter('td')->eq(1)->text(), $nn->filter('td')->eq(3)->text(), $nn->filter('td')->eq(7)->text(),$nn->filter('td')->eq(4)->text()];
+                    return [$nn->filter('td')->eq(3)->filter('a')->attr('href'), $nn->filter('td')->eq(1)->text(), $nn->filter('td')->eq(3)->text(), $nn->filter('td')->eq(7)->text(), $nn->filter('td')->eq(4)->text()];
                 } catch (\Throwable $th) {
                     return 0;
                 }
@@ -401,7 +399,7 @@ class GoutteController extends Controller
                             if ($n->filter('.card-cell--horse span')->eq(0)->text() == "1.") {
                                 $f["first_rtg_line1"] = $line1;
                                 $f["first_rtg1"] = $first_rtg1;
-                            }else{
+                            } else {
                                 $f["first_rtg_line1"] = 0;
                                 $f["first_rtg1"] = $first_rtg1;
                             }
@@ -482,27 +480,25 @@ class GoutteController extends Controller
         $race_title = $race_distance_array[$race_no - 1];
 
         preg_match("/\((\d+)\s.*?\)/", $race_distance_array[$race_no - 1], $matches);
-        
-
 
         $craw = $goutteClient->request('GET', $baseurl);
         $hourse_data = $craw->filter("table")->filter('.race-strip-fields tr')->each(function ($n) {
             try {
-                
+
                 $n->filter('td')->eq(9)->text();
                 try {
                     return ['link' => $n->filter('td')->eq(2)->filter("a")->attr('href'), 'no' => $n->filter('td')->eq(0)->text(), 'form' => $n->filter('td')->eq(1)->text(),
-                     'hourse_name' => $n->filter('td')->eq(2)->text(), 'rt' => $n->filter('td')->eq(9)->text()
-                     , 'weight' => $n->filter('td')->eq(6)->text(), 'barrier' => $n->filter('td')->eq(5)->text()];
+                        'hourse_name' => $n->filter('td')->eq(2)->text(), 'rt' => $n->filter('td')->eq(9)->text()
+                        , 'weight' => $n->filter('td')->eq(6)->text(), 'barrier' => $n->filter('td')->eq(5)->text()];
                 } catch (\Throwable $th) {
                     return 0;
                 }
             } catch (\Throwable $th) {
                 try {
-                    return ['link' => $n->filter('td')->eq(2)->filter("a")->attr('href'), 
-                    'no' => $n->filter('td')->eq(0)->text(), 'form' => $n->filter('td')->eq(1)->text(),
-                     'hourse_name' => $n->filter('td')->eq(2)->text(), 
-                     'rt' => $n->filter('td')->eq(8)->text(), 'weight' => $n->filter('td')->eq(6)->text(), 'barrier' => $n->filter('td')->eq(5)->text()];
+                    return ['link' => $n->filter('td')->eq(2)->filter("a")->attr('href'),
+                        'no' => $n->filter('td')->eq(0)->text(), 'form' => $n->filter('td')->eq(1)->text(),
+                        'hourse_name' => $n->filter('td')->eq(2)->text(),
+                        'rt' => $n->filter('td')->eq(8)->text(), 'weight' => $n->filter('td')->eq(6)->text(), 'barrier' => $n->filter('td')->eq(5)->text()];
                 } catch (\Throwable $th) {
                     return 0;
                 }
@@ -533,10 +529,22 @@ class GoutteController extends Controller
 
             $emptyRemoved = array_filter($hourse_data1);
             $two_element_array = array_slice($emptyRemoved, -3);
+            
             $clean_hn = preg_replace('/[^A-Za-z0-9\-]/', '', $sub["hourse_name"]);
-            if(count($two_element_array) > 2){
+            if (count($two_element_array) > 2) {
                 $sub["3or"] = $two_element_array[2][0];
                 $sub["3fr"] = $two_element_array[2][2];
+                $craw3 = $goutteClient->request('GET', $domain_met . $two_element_array[2][1]);
+                $hourse_data3 = $craw3->filter("table")->filter('.race-strip-fields tr')->each(function ($n) use (&$sub, &$arr1, &$clean_hn) {
+                    try {
+                        if (str_contains($clean_hn, preg_replace('/[^A-Za-z0-9\-]/', '', $n->filter('td')->eq(3)->text())) || str_contains(preg_replace('/[^A-Za-z0-9\-]/', '', $n->filter('td')->eq(3)->text()), $clean_hn)) {
+                            $sub["3phn"] = $n->filter('td')->eq(2)->text();
+                            $sub["3fp"] = $n->filter('td')->eq(1)->text();
+                        }
+                    } catch (\Throwable $th) {
+                        return 0;
+                    }
+                });
             }
             if (count($two_element_array) > 1) {
                 $sub["ppor"] = $two_element_array[0][0];
@@ -551,6 +559,7 @@ class GoutteController extends Controller
                     try {
                         if (str_contains($clean_hn, preg_replace('/[^A-Za-z0-9\-]/', '', $n->filter('td')->eq(3)->text())) || str_contains(preg_replace('/[^A-Za-z0-9\-]/', '', $n->filter('td')->eq(3)->text()), $clean_hn)) {
                             $sub["phn"] = $n->filter('td')->eq(2)->text();
+                            $sub["2fp"] = $n->filter('td')->eq(1)->text();
                         }
                     } catch (\Throwable $th) {
                         return 0;
@@ -614,6 +623,7 @@ class GoutteController extends Controller
                     try {
                         if (str_contains($clean_hn, preg_replace('/[^A-Za-z0-9\-]/', '', $n->filter('td')->eq(3)->text())) || str_contains(preg_replace('/[^A-Za-z0-9\-]/', '', $n->filter('td')->eq(3)->text()), $clean_hn)) {
                             $sub["pphn"] = $n->filter('td')->eq(2)->text();
+                            $sub["1fp"] = $n->filter('td')->eq(1)->text();
                         }
                     } catch (\Throwable $th) {
                         return 0;
@@ -740,7 +750,7 @@ class GoutteController extends Controller
             }
             array_push($main_arr, $sub);
         }
-        return view("ast")->with("last_page", $main_arr)->with("race_title",$race_title);
+        return view("ast")->with("last_page", $main_arr)->with("race_title", $race_title);
 
     }
 
@@ -758,7 +768,7 @@ class GoutteController extends Controller
         ));
         $goutteClient->setClient($guzzleClient);
         $baseurl = $req->center;
-        
+
         preg_match('/\d{4}-\d{2}-\d{2}/', $baseurl, $event_date);
         $e_date = $event_date[0];
 
@@ -767,21 +777,20 @@ class GoutteController extends Controller
             try {
                 return $n->text();
             } catch (\Throwable $th) {
-               
+
             }
         });
-        
+
         preg_match("/^\d+/", $hourse_current_distance[0], $matches);
-        
+
         $craw = $goutteClient->request('GET', $baseurl);
         $race_id = $req->race_id;
-        $race_id_tag = '#race-'.$race_id. ' .heading_div';
+        $race_id_tag = '#race-' . $race_id . ' .heading_div';
         $heading = $craw->filter($race_id_tag)->each(function ($n) {
             try {
                 return $n->text();
             } catch (\Throwable $th) {}
         });
-        
 
         $hourse_data = $craw->filter('.table_body_static tr')->each(function ($n) {
             try {
@@ -811,7 +820,7 @@ class GoutteController extends Controller
             $count = 0;
 
             $sub['current_rating'] = $craw1->filter('.horseStatistics-table td .right-serispan')->eq(0)->text();
-            
+
             $craw1->filter('#siretable tr')->each(function ($n) use (&$count, &$sub) {
                 try {
                     if (!str_contains($n->filter('.stats-table-row a')->text(), "W") && $count < 3) {
@@ -827,7 +836,7 @@ class GoutteController extends Controller
                     return 0;
                 }
             });
-            
+
             $hourse_name = explode(" ", $sub['hname'])[0];
             try {
                 $final1 = "";
@@ -839,7 +848,7 @@ class GoutteController extends Controller
                 $rtg_no = "";
                 $rrt1 = "";
 
-                $craw2->filter('.dividend_tr')->each(function ($n) use (&$sub, &$rtg_no, &$final1, &$hourse_name,&$rrt1) {
+                $craw2->filter('.dividend_tr')->each(function ($n) use (&$sub, &$rtg_no, &$final1, &$hourse_name, &$rrt1) {
                     try {
 
                         $rrt1 = $n->filter('td')->eq(12)->text();
@@ -850,7 +859,7 @@ class GoutteController extends Controller
                         } else {
                             $rtg_no = 0;
                         }
-                        
+
                     } catch (\Throwable $th) {
                         $rtg_no = 0;
                     }
@@ -897,8 +906,7 @@ class GoutteController extends Controller
                     } else {
                         $rtg_no2 = 0;
                     }
- 
-                    
+
                     $final2 .= $n->filter('td')->eq(0)->text() . " " . $n->filter('td')->eq(1)->text() . " " . $rtg_no2 . "<br>";
                     $sub[$sub['phn1']] = $final2;
                     if ($n->filter('td')->eq(1)->text() == "1") {
@@ -921,15 +929,13 @@ class GoutteController extends Controller
                 $sub[$sub['phn1']] = $final2;
             }
 
-
-
             // link 3 start
             try {
                 $craw3 = $goutteClient->request('GET', $sub["link3"]);
                 $craw3->filter('.center_heading')->each(function ($n) use (&$sub) {
                     $sub['class_name3'] = $n->text();
                 });
-                $craw3->filter('.dividend_tr')->each(function ($n) use (&$sub){
+                $craw3->filter('.dividend_tr')->each(function ($n) use (&$sub) {
                     try {
                         if (str_contains($sub['hname'], $n->filter('td')->eq(2)->filter("a")->text()) || str_contains($n->filter('td')->eq(2)->filter("a")->text(), $sub['hname'])) {
                             $sub['pi3'] = $n->filter('td')->eq(0)->text();
@@ -943,23 +949,24 @@ class GoutteController extends Controller
                 });
 
             } catch (\Throwable $th) {
-                
+
             }
 
             array_push($main_arr, $sub);
         }
         return view("india")
-        ->with("last_page", $main_arr)->with('heading',$heading[0])
-        ->with("event_date",$e_date);
+            ->with("last_page", $main_arr)->with('heading', $heading[0])
+            ->with("event_date", $e_date);
 
     }
 
-
-    public function australia_input(){
+    public function australia_input()
+    {
         return view("ast_input");
     }
 
-    public function australia_output() {
+    public function australia_output()
+    {
         $goutteClient = new Client();
         $guzzleClient = new GuzzleClient(array(
             'timeout' => 60,
@@ -967,9 +974,9 @@ class GoutteController extends Controller
         ));
         $goutteClient->setClient($guzzleClient);
         $baseurl = "https://www.racingandsports.com.au/form-guide/thoroughbred/australia/bendigo/2024-10-30/R1";
-        
+
         $craw_dis = $goutteClient->request('GET', $baseurl);
-        
+
         $data = $craw_dis->filter(".pa-table tbody tr ")->each(function ($n) {
             try {
                 return $n->filter(".tdContent")->text();
@@ -978,18 +985,93 @@ class GoutteController extends Controller
         });
 
         dd($data);
-       
+
     }
 
-    public function add_user_view() {
+    public function add_user_view()
+    {
         return view("add_user");
     }
 
-    public function add_user(Request $req) {
-        $number =  $req->input('number');
-        $name =  $req->input('name');
-        $e = DB::update('update user set name= ? where mobile = ?', [$name,$number]);
+    public function add_user(Request $req)
+    {
+        $number = $req->input('number');
+        $name = $req->input('name');
+        $e = DB::update('update user set name= ? where mobile = ?', [$name, $number]);
         return view("add_user");
     }
 
+    public function uk_data_view(){
+        return view("uk_data_view");
+    }
+
+    public function uk_data(Request $req)
+    {
+
+        $goutteClient = new Client();
+        $guzzleClient = new GuzzleClient(array(
+            'timeout' => 60,
+            'verify' => false,
+        ));
+        $goutteClient->setClient($guzzleClient);
+        $url = $req->center;
+        $craw_dis = $goutteClient->request('GET', $url);
+        $previouse_data = [];
+        $data = $craw_dis->filter(".RC-runnerRow")->each(function ($n) use ($guzzleClient, $previouse_data) {
+            try {
+
+                $no = $n->filter(".RC-runnerNumber__no")->text();
+                $form = $n->filter(".RC-runnerInfo__form")->text();
+                $horse_name = $n->filter(".RC-runnerMainWrapper")->text();
+                $previouse_data = json_decode($guzzleClient->get("https://www.racingpost.com/profile/tab/horse/" . explode("/", $n->filter(".RC-runnerMainWrapper a")->attr('href'))[3] . "/theformismighty/form")->getBody()->getContents(), true)["raceRecords"]["lifetimeRecords"];
+                try {
+                    $ptp = $previouse_data["PTP"]["bestRpr"];
+                } catch (\Throwable $th) {
+                    $ptp = 0;
+                }
+                try {
+                    $hurdle = $previouse_data["Hurdle"]["bestRpr"];
+                } catch (\Throwable $th) {
+                    $hurdle = 0;
+                }
+                try {
+                    $rules_races = $previouse_data["Rules Races"]["bestRpr"];
+                } catch (\Throwable $th) {
+                    $rules_races = 0;
+                }
+                try {
+                    $chase = $previouse_data["Chase"]["bestRpr"];
+                } catch (\Throwable $th) {
+                    $chase = 0;
+                }
+                try {
+                    $nhf = $previouse_data["NHF"]["bestRpr"];
+                } catch (\Throwable $th) {
+                    $nhf = 0;
+                }
+
+                try {
+                    $all_wheater_races = $previouse_data["All-weather"]["bestRpr"];
+                } catch (\Throwable $th) {
+                    $all_wheater_races = 0;
+                }
+
+                try {
+                    $flat_races = $previouse_data["Flat Turf"]["bestRpr"];
+                } catch (\Throwable $th) {
+                    $flat_races = 0;
+                }
+                return [
+                    "no"=>$no, "form"=>$form, "horse_name"=>$horse_name, "ptp"=>$ptp, 
+                    "hurdle"=>$hurdle, "rules_races"=>$rules_races, "chase"=>$chase, "nhf"=>$nhf,
+                    "all_wheater_races"=>$all_wheater_races, "flat_races"=>$flat_races
+                ];
+
+            } catch (\Throwable $th) {
+            }
+        });
+
+        return view("uk_data")->with("data",$data);
+
+    }
 }

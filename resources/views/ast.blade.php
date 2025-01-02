@@ -258,7 +258,7 @@
                     <td style="width: 4.33%"> {{ $por }} </td>
 
                     <td style="text-align: center;font-size: 2em;width: 4.33%"><b>{{ $item['no'] }}</b> </td>
-                    <td style="width: 4.33%">{{ $item['rt'] }}</td>
+                    <td style="width: 4.33%">{{ intval($item['rt']) }}</td>
                     <td style="color:yellow;background-color: rgb(241, 228, 37);width: 4.33%">
                         <b style="color: black">
                             <h2>{{ intval($item['no']) - 1 + intval($item['rt']) }}</h2>
@@ -4881,11 +4881,11 @@
                         </b>
                     </td>
                     <td style="width: 3%">
-                        <b style="width: 5%;font-size: 30px;">{{ $item['rt'] }}</b>
+                        <b style="width: 5%;font-size: 30px;">{{ intval($item['rt']) }}</b>
                     </td>
                     <td style="width: 3%">
                         <b style="width: 5%;font-size: 30px;">
-                            {{ $item['rt'] - intval(substr($por, strpos($por, 'Rtg') + 3, 3)) }}
+                            {{ intval($item['rt']) - intval(substr($por, strpos($por, 'Rtg') + 3, 3)) }}
                         </b>
                     </td>
                     <td style="width: 3%"></td>
@@ -5191,9 +5191,11 @@
                 <td>3</td>
                 <td>P ODDS</td>
                 <td>C ODDS</td>
+                <td>Date</td>
                 <td>Class</td>
                 <td>LTG</td>
-                <td>**</td>
+                <td>RTG</td>
+                <td>PHN</td>
                 <td>F/P</td>
                 <td>Final A</td>
                 <td>**</td>
@@ -5215,6 +5217,29 @@
                         $_3or = $item['3or'];
                     } else {
                         $_3or = 0;
+                    }
+                    if (isset($item['3phn'])) {
+                        $_3phn = $item['3phn'];
+                    } else {
+                        $_3phn = 0;
+                    }
+
+                    if (isset($item['1fp'])) {
+                        $_1fp = intval($item['1fp']);
+                    } else {
+                        $_1fp = 0;
+                    }
+
+                    if (isset($item['2fp'])) {
+                        $_2fp = intval($item['2fp']);
+                    } else {
+                        $_2fp = 0;
+                    }
+
+                    if (isset($item['3fp'])) {
+                        $_3fp = $item['3fp'];
+                    } else {
+                        $_3fp = 0;
                     }
 
                     if (isset($item['phn'])) {
@@ -5438,13 +5463,21 @@
                     $_19_3_PODDS = $_19_3_PODDS_matches[0] ?? null;
 
 
+                    $pattern_for_class = '/\b(\d{3,4}m\s+\w+\d+\s+\w+(?:-\w+)?)/';
+                    preg_match($pattern_for_class, $_3or, $_19_1_class_matches);
+                    $_19_1_class = $_19_1_class_matches[1] ?? null;
+                    preg_match($pattern_for_class, $por, $_19_2_class_matches);
+                    $_19_2_class = $_19_2_class_matches[1] ?? null;
+                    preg_match($pattern_for_class, $ppor, $_19_3_class_matches);
+                    $_19_3_class = $_19_3_class_matches[1] ?? null;
 
-                    preg_match('/\b\d{2}[A-Za-z]{3}\d{2}\b/', $_3or, $_19_1_class_matches);
-                    $_19_1_class = $_19_1_class_matches[0] ?? null;
-                    preg_match('/\b\d{2}[A-Za-z]{3}\d{2}\b/', $por, $_19_2_class_matches);
-                    $_19_2_class = $_19_2_class_matches[0] ?? null;
-                    preg_match('/\b\d{2}[A-Za-z]{3}\d{2}\b/', $ppor, $_19_3_class_matches);
-                    $_19_3_class = $_19_3_class_matches[0] ?? null;
+
+                    preg_match('/\b\d{2}[A-Za-z]{3}\d{2}\b/', $_3or, $_19_1_date_matches);
+                    $_19_1_date = $_19_1_date_matches[0] ?? null;
+                    preg_match('/\b\d{2}[A-Za-z]{3}\d{2}\b/', $por, $_19_2_date_matches);
+                    $_19_2_date = $_19_2_date_matches[0] ?? null;
+                    preg_match('/\b\d{2}[A-Za-z]{3}\d{2}\b/', $ppor, $_19_3_date_matches);
+                    $_19_3_date = $_19_3_date_matches[0] ?? null;
 
 
                     preg_match('/\b\d+(\.\d+)?(?=L)/', $_3or, $_19_1_LTG_matches);
@@ -5455,27 +5488,28 @@
                     $_19_3_LTG = $_19_3_LTG_matches[0] ?? null;
 
 
-                    preg_match('/Rtg\s(\d+)/', $_3or, $_19_1_RTG_matches);
-                    $_19_1_RTG = $_19_1_RTG_matches[0] ?? null;
+                    preg_match('/Rtg\s+(\d+)/', $_3or, $_19_1_RTG_matches);
+                    $_19_1_RTG = $_19_1_RTG_matches[1] ?? null;
                     preg_match('/Rtg\s(\d+)/', $por, $_19_2_RTG_matches);
-                    $_19_2_RTG = $_19_2_RTG_matches[0] ?? null;
+                    $_19_2_RTG = $_19_2_RTG_matches[1] ?? null;
                     preg_match('/Rtg\s(\d+)/', $ppor, $_19_3_RTG_matches);
-                    $_19_3_RTG = $_19_3_RTG_matches[0] ?? null;
-
-
+                    $_19_3_RTG = $_19_3_RTG_matches[1] ?? null;
 
                 @endphp
+                
                 <tr>
                     <td style="width: 1%;font-size: 15px;"> <b>{{ $item_no }}</b></td>
                     <td style="width: 3%">{{ $item['hourse_name'] }}</td>
                     <td style="width: 25%;font-size: 15px;"> {{ $_3or }} </td>
                     <td style="width: 3%">{{ $_19_1_PODDS }}</td>
                     <td style="width: 3%"></td>
+                    <td style="width: 3%">{{ $_19_1_date }}</td>
                     <td style="width: 3%">{{ $_19_1_class }}</td>
                     <td style="width: 3%">{{ $_19_1_LTG }}</td>
-                    <td style="width: 3%"></td>
-                    <td style="width: 3%"></td>
-                    <td style="width: 3%"></td>
+                    <td style="width: 3%">{{ $_19_1_RTG }}</td>
+                    <td style="width: 3%">{{ $_3phn }}</td>
+                    <td style="width: 3%">{{ $_3fp }}</td>
+                    <td style="width: 5%"></td>
                     <td style="width: 3%"></td>
                     <td style="width: 5%"></td>
                 </tr>
@@ -5485,10 +5519,12 @@
                     <td style="width: 25%;font-size: 15px;"> {{ $por }} </td>
                     <td style="width: 3%">{{ $_19_2_PODDS }}</td>
                     <td style="width: 3%"></td>
+                    <td style="width: 3%">{{ $_19_2_date }}</td>
                     <td style="width: 3%">{{ $_19_2_class }}</td>
                     <td style="width: 3%">{{ $_19_2_LTG }}</td>
-                    <td style="width: 3%"></td>
-                    <td style="width: 3%"></td>
+                    <td style="width: 3%">{{ $_19_2_RTG }}</td>
+                    <td style="width: 3%">{{ $pphn }}</td>
+                    <td style="width: 3%">{{ $_1fp }}</td>
                     <td style="width: 3%"></td>
                     <td style="width: 3%"></td>
                     <td style="width: 5%"></td>
@@ -5499,10 +5535,12 @@
                     <td style="width: 25%;font-size: 15px;"> {{ $ppor }} </td>
                     <td style="width: 3%">{{ $_19_3_PODDS }}</td>
                     <td style="width: 3%"></td>
+                    <td style="width: 3%">{{ $_19_3_date  }}</td>
                     <td style="width: 3%">{{ $_19_3_class  }}</td>
                     <td style="width: 3%">{{ $_19_3_LTG  }}</td>
-                    <td style="width: 3%"></td>
-                    <td style="width: 3%"></td>
+                    <td style="width: 3%">{{ $_19_3_RTG  }}</td>
+                    <td style="width: 3%">{{ $phn }}</td>
+                    <td style="width: 3%">{{ $_2fp }}</td>
                     <td style="width: 3%"></td>
                     <td style="width: 3%"></td>
                     <td style="width: 5%"></td>
@@ -5512,7 +5550,1324 @@
     </table>
 
 
-    
+    {{-- 20 --}}
+    <br><br><br><br><br><br>
+
+    <h1>Formula: 20 | {{ $new_rt }}</h1>
+    <h5>{{ $race_title }}</h5>
+    <h1>******************************************************************************************************</h1>
+    <table class="table table-bordered" style="page-break-after: always;">
+        <tbody>
+            @php
+                $new_rt = intval($last_page[0]['rt']);
+            @endphp
+            <tr>
+                <td>1</td>
+                <td>2</td>
+                <td>3</td>
+                <td>P ODDS</td>
+                <td>C ODDS</td>
+                <td>Date</td>
+                <td>Class</td>
+                <td>LTG</td>
+                <td>PRTG</td>
+                <td>CRTG</td>
+                <td>RTG ANS</td>
+                <td>PHN</td>
+                <td>CHN</td>
+                <td>T/S</td>
+                <td>F/P</td>
+                <td>A</td>
+                <td>CHN</td>
+                <td>AA</td>
+                <td>***</td>
+
+                <td>RTG</td>
+                <td>T/S</td>
+                <td>AA</td>
+
+                <td>LTG</td>
+                <td>F/P</td>
+                <td style="color: red;font-size: 25px">ANS</td>
+
+                <td>LTG</td>
+                <td>F/P</td>
+                <td>F/P ANS</td>    
+                <td>ANS</td>
+
+                <td>LTG</td>
+                <td>F/P</td>
+                <td>Final Ans</td>
+
+                <td>**</td>
+
+            </tr>
+            @foreach ($last_page as $k => $item)
+                @php
+                    if (isset($item['pphn'])) {
+                        $pphn = $item['pphn'];
+                    } else {
+                        $pphn = 0;
+                    }
+                    if (isset($item['ppor'])) {
+                        $ppor = $item['ppor'];
+                    } else {
+                        $ppor = 0;
+                    }
+                    if (isset($item['3or'])) {
+                        $_3or = $item['3or'];
+                    } else {
+                        $_3or = 0;
+                    }
+                    if (isset($item['3phn'])) {
+                        $_3phn = $item['3phn'];
+                    } else {
+                        $_3phn = 0;
+                    }
+
+                    if (isset($item['1fp'])) {
+                        $_1fp = intval($item['1fp']);
+                    } else {
+                        $_1fp = 0;
+                    }
+
+                    if (isset($item['2fp'])) {
+                        $_2fp = intval($item['2fp']);
+                    } else {
+                        $_2fp = 0;
+                    }
+
+                    if (isset($item['3fp'])) {
+                        $_3fp = intval($item['3fp']);
+                    } else {
+                        $_3fp = 0;
+                    }
+
+                    if (isset($item['phn'])) {
+                        $phn = intval($item['phn']);
+                    } else {
+                        $phn = 0;
+                    }
+                    if (isset($item['por'])) {
+                        $por = $item['por'];
+                    } else {
+                        $por = 0;
+                    }
+
+                    if (isset($item['arr2']['b4'])) {
+                        $high_weight1 = explode('kg', $item['arr2']['b4'][2])[0];
+                    } else {
+                        $high_weight1 = 0;
+                    }
+
+                    if (isset($item['arr2']['b4'])) {
+                        $high_weight2 = explode('kg', $item['arr2']['b4'][2])[0];
+                    } else {
+                        $high_weight2 = 0;
+                    }
+
+                    $yellow1 = intval($phn) - 1 + intval(substr($por, strpos($por, 'Rtg') + 3, 3));
+                    if ($phn == 1) {
+                        $yellow1_phn = $yellow1;
+                    } else {
+                        $yellow1_phn = $yellow1 - $phn;
+                    }
+                    $newrt_hw1 = $new_rt - $high_weight1;
+
+                    if ($newrt_hw1 == 0) {
+                        $a1 = $yellow1_phn;
+                        $sing1 = 'SC';
+                    } elseif ($newrt_hw1 < 0) {
+                        $a1 = $yellow1_phn - abs($newrt_hw1);
+                        $sing1 = 'D';
+                    } else {
+                        $a1 = $yellow1_phn + abs($newrt_hw1);
+                        $sing1 = 'P';
+                    }
+
+                    $yellow2 = intval($phn) - 1 + intval(substr($por, strpos($por, 'Rtg') + 3, 3));
+                    if ($phn == 1) {
+                        $yellow2_phn = $yellow2;
+                    } else {
+                        $yellow2_phn = $yellow2 - $phn;
+                    }
+                    $newrt_hw2 = $new_rt - $high_weight2;
+
+                    if ($newrt_hw2 == 0) {
+                        $a2 = $yellow2_phn;
+                        $sing2 = 'SC';
+                    } elseif ($newrt_hw2 < 0) {
+                        $a2 = $yellow2_phn - abs($newrt_hw2);
+                        $sing2 = 'Demosition';
+                    } else {
+                        $a2 = $yellow2_phn + abs($newrt_hw2);
+                        $sing2 = 'Promosition';
+                    }
+
+                    try {
+                        $position_w1 = explode('kg', $item['arr2']['b3'][2])[0];
+                    } catch (\Throwable $th) {
+                        $position_w1 = 0;
+                    }
+
+                    try {
+                        $third_position_w1 = explode('kg', $item['arr2']['b2'][2])[0];
+                    } catch (\Throwable $th) {
+                        $third_position_w1 = 0;
+                    }
+
+                    if ($position_w1 == 1) {
+                        $a3 = 0;
+                    } elseif ($position_w1 == 3) {
+                        $a3 = 0;
+                    } else {
+                        $a3 = $position_w1 - $third_position_w1;
+                    }
+
+                    try {
+                        $position_w2 = explode('kg', $item['arr2']['b3'][2])[0];
+                    } catch (\Throwable $th) {
+                        $position_w2 = 0;
+                    }
+
+                    try {
+                        $third_position_w2 = explode('kg', $item['arr2']['b2'][2])[0];
+                    } catch (\Throwable $th) {
+                        $third_position_w2 = 0;
+                    }
+
+                    try {
+                        $first_position = explode('kg', $item['arr2']['b1'][2])[0];
+                    } catch (\Throwable $th) {
+                        $first_position = 0;
+                    }
+
+                    if ($position_w2 == 1) {
+                        $a4 = 0;
+                    } elseif ($position_w2 == 3) {
+                        $a4 = 0;
+                    } else {
+                        $a4 = $position_w2 - $third_position_w2;
+                    }
+
+                    if ($a3 == 0) {
+                        $a5 = $a1;
+                    } elseif ($a3 < 0) {
+                        $a5 = $a1 - abs($a3);
+                    } else {
+                        $a5 = $a1 + abs($a3);
+                    }
+
+                    if ($a4 == 0) {
+                        $a6 = $a2;
+                    } elseif ($a4 < 0) {
+                        $a6 = $a2 - abs($a4);
+                    } else {
+                        $a6 = $a2 + abs($a4);
+                    }
+
+                    // use start
+
+                    $z1 = $high_weight1 - $first_position;
+                    $z2 = $a5 - $third_position_w1;
+                    if ($z2 == 0) {
+                        $z3 = $z1;
+                    } elseif ($z2 < 0) {
+                        $z3 = abs($z2) - $z1;
+                    } else {
+                        $z3 = abs($z2) + $z1;
+                    }
+
+                    $z4 = $third_position_w1 - $a5;
+                    $z5 = $high_weight1 - $z3 - $a5;
+
+                    $z6 = abs($z4);
+                    $z7 = abs($z5);
+                    if ($z5 < 0) {
+                        $s1 = '-';
+                    } else {
+                        $s1 = '';
+                    }
+                    if ($z4 < 0) {
+                        $s2 = '-';
+                    } else {
+                        $s2 = '';
+                    }
+
+                    if ($z6 > $z7) {
+                        $z8 = $z6 - $z7;
+                        if ($s1 == '-') {
+                            $s4 = $a5 - abs($z8);
+                        } else {
+                            $s4 = $a5 + abs($z8);
+                        }
+                        $z9 = '';
+                    } else {
+                        $z8 = '';
+                        $z9 = $z7 - $z6;
+                        if ($s2 == '-') {
+                            $s4 = $a5 - abs($z9);
+                        } else {
+                            $s4 = $a5 + abs($z9);
+                        }
+                    }
+
+                    if ($z5 < 0) {
+                        $s3 = $third_position_w1 - abs($z5);
+                    } else {
+                        $s3 = $third_position_w1 + abs($z5);
+                    }
+
+                    $s5 = intval($item['no']) - 1 + intval($item['rt']) - $third_position_w1;
+                    $s6 = $a5 + $z3 - $third_position_w1;
+                    $s7 = abs($s6) - abs($s5);
+                    if (abs($s6) < abs($s5)) {
+                        $s56_sing = $s6 < 0 ? '-' : '';
+                    } else {
+                        $s56_sing = $s5 < 0 ? '-' : '';
+                    }
+
+                    if ($z2 < 0) {
+                        $az52 = $a5 + abs($z2);
+                    } else {
+                        $az52 = $a5;
+                    }
+
+                    if (isset($item['arr2'])) {
+                        $arr2_b3_1 = intval($item['arr2']['b3'][1]);
+                        $arr2_b3_0 = intval($item['arr2']['b3'][0]);
+                        $item_no = intval($item['no']);
+                        $arr2_3_1__item_no = $arr2_b3_1 - $item_no;
+                    } else {
+                        $arr2_b3_1 = 0;
+                        $arr2_b3_0 = 0;
+                        $item_no = 0;
+                        $arr2_3_1__item_no = 0;
+                    }
+                    $current_weight = explode('kg', $item['weight'])[0];
+                    if ($arr2_3_1__item_no < 0) {
+                        $sp1 = $current_weight - abs($arr2_3_1__item_no);
+                    } else {
+                        $sp1 = $current_weight + $arr2_3_1__item_no;
+                    }
+                    $sp2 = $position_w2 - $sp1;
+
+                    $sp3 = intval($item['arr2']['b3'][0] ?? 0);
+                    $sp4 = intval($arr2_b3_1) - $sp3;
+                    $sp5 = intval($current_weight) - intval($position_w2);
+
+                    preg_match('/\d+(?:\.\d+)?(?!.*\d+(?:\.\d+)?)/', $_3or, $_19_1_PODDS_matches);
+                    $_19_1_PODDS = $_19_1_PODDS_matches[0] ?? null;
+                    preg_match('/\d+(?:\.\d+)?(?!.*\d+(?:\.\d+)?)/', $por, $_19_2_PODDS_matches);
+                    $_19_2_PODDS = $_19_2_PODDS_matches[0] ?? null;
+                    preg_match('/\d+(?:\.\d+)?(?!.*\d+(?:\.\d+)?)/', $ppor, $_19_3_PODDS_matches);
+                    $_19_3_PODDS = $_19_3_PODDS_matches[0] ?? null;
+
+
+                    $pattern_for_class = '/\b(\d{3,4}m\s+\w+\d+\s+\w+(?:-\w+)?)/';
+                    preg_match($pattern_for_class, $_3or, $_19_1_class_matches);
+                    $_19_1_class = $_19_1_class_matches[1] ?? null;
+                    preg_match($pattern_for_class, $por, $_19_2_class_matches);
+                    $_19_2_class = $_19_2_class_matches[1] ?? null;
+                    preg_match($pattern_for_class, $ppor, $_19_3_class_matches);
+                    $_19_3_class = $_19_3_class_matches[1] ?? null;
+
+
+                    preg_match('/\b\d{2}[A-Za-z]{3}\d{2}\b/', $_3or, $_19_1_date_matches);
+                    $_19_1_date = $_19_1_date_matches[0] ?? null;
+                    preg_match('/\b\d{2}[A-Za-z]{3}\d{2}\b/', $por, $_19_2_date_matches);
+                    $_19_2_date = $_19_2_date_matches[0] ?? null;
+                    preg_match('/\b\d{2}[A-Za-z]{3}\d{2}\b/', $ppor, $_19_3_date_matches);
+                    $_19_3_date = $_19_3_date_matches[0] ?? null;
+
+
+                    preg_match('/\b\d+(\.\d+)?(?=L)/', $_3or, $_19_1_LTG_matches);
+                    $_19_1_LTG = $_19_1_LTG_matches[0] ?? null;
+                    preg_match('/\b\d+(\.\d+)?(?=L)/', $por, $_19_2_LTG_matches);
+                    $_19_2_LTG = $_19_2_LTG_matches[0] ?? null;
+                    preg_match('/\b\d+(\.\d+)?(?=L)/', $ppor, $_19_3_LTG_matches);
+                    $_19_3_LTG = $_19_3_LTG_matches[0] ?? null;
+
+
+                    preg_match('/Rtg\s+(\d+)/', $_3or, $_19_1_RTG_matches);
+                    $_19_1_RTG = $_19_1_RTG_matches[1] ?? null;
+                    preg_match('/Rtg\s(\d+)/', $por, $_19_2_RTG_matches);
+                    $_19_2_RTG = $_19_2_RTG_matches[1] ?? null;
+                    preg_match('/Rtg\s(\d+)/', $ppor, $_19_3_RTG_matches);
+                    $_19_3_RTG = $_19_3_RTG_matches[1] ?? null;
+
+                @endphp
+                
+                <tr>
+                    <td style="width: 1%;font-size: 15px;"> <b>{{ $item_no }}</b></td>
+                    <td style="width: 3%">{{ $item['hourse_name'] }}</td>
+                    <td style="width: 25%;font-size: 15px;"> {{ $_3or }} </td>
+                    <td style="width: 3%">{{ $_19_1_PODDS }}</td>
+                    <td style="width: 3%"></td>
+                    <td style="width: 3%">{{ $_19_1_date }}</td>
+                    <td style="width: 3%">{{ $_19_1_class }}</td>
+                    <td style="width: 3%">{{ $_19_1_LTG }}</td>
+                    <td style="width: 3%">{{ $_19_1_RTG }}</td>
+                    <td style="width: 3%">{{ intval($item['rt']) }}</td>
+                    <td style="width: 3%;font-size: 25px;color: red"> <b>{{ intval($item['rt']) - $_19_1_RTG }}</b></td>
+                    <td style="width: 3%">{{ $_3phn }}</td>
+                    <td style="width: 1%;font-size: 15px;"> <b>{{ $item_no }}</b></td>
+                    <td style="width: 3%;color: blue">{{ $_3phn - $item_no }}</td>
+                    <td style="width: 3%">{{ $_3fp }}</td>
+                    <td style="width: 3%;font-size: 25px;color: red"> <b>{{ $_3fp - ($_3phn - $item_no) }}</b></td>
+                    <td style="width: 1%;font-size: 15px;"> <b>{{ $item_no }}</b></td>
+                    <td style="width: 3%;font-size: 25px;color: red"> <b>{{ $item_no - ($_3fp - ($_3phn - $item_no)) }}</b></td>
+                    <td style="width: 5%"></td>
+
+
+                    <td style="width: 3%;font-size: 25px;color: red"> <b>{{ intval($item['rt']) - $_19_1_RTG }}</b></td>
+                    <td style="width: 3%;color: blue">{{ $_3phn - $item_no }}</td>
+                    <td style="width: 3%;font-size: 25px;color: red"> <b>{{ $item_no - ($_3fp - ($_3phn - $item_no)) }}</b></td>
+                    <td style="width: 3%">{{ $_19_1_LTG }}</td>
+                    <td style="width: 3%">{{ $_3fp }}</td>
+                    <td style="width: 3%;font-size: 35px;color: red"> <b>
+                        {{
+                            $_4ans = (intval($item['rt'])- $_19_1_RTG) + ($_3phn - $item_no) + ($item_no - ($_3fp - ($_3phn - $item_no))) + ($_19_1_LTG) 
+                        }}
+                        </b>
+                    </td>
+                    <td style="width: 3%">{{ $_19_1_LTG }}</td>
+                    <td style="width: 3%">{{ $_3fp }}</td>
+                    <td style="width: 3%;font-size: 15px;color:blue">{{ $_1fp - $_3fp }}</td>
+                    <td style="width: 3%;font-size: 25px;color: red"> <b>{{ $_3fp - $_19_1_LTG }}</b></td>
+                    <td style="width: 3%">{{ $_19_1_LTG }}</td>
+                    <td style="width: 3%">{{ $_3fp }}</td>
+                    <td style="width: 3%;font-size: 35px;color:blue">
+                        <b>{{ $_4ans - ($_3fp - $_19_1_LTG) }}</b>
+                    </td>
+                    <td style="width: 3%;font-size: 35px;color:darkgreen">
+                        <b>{{ abs($_19_1_LTG) + abs($_3fp) + abs($_4ans - ($_3fp - $_19_1_LTG)) }}</b>
+                    </td>
+                    
+                </tr>
+                <tr>
+                    <td style="width: 3%"></td>
+                    <td style="width: 3%"></td>
+                    <td style="width: 25%;font-size: 15px;"> {{ $por }} </td>
+                    <td style="width: 3%">{{ $_19_2_PODDS }}</td>
+                    <td style="width: 3%"></td>
+                    <td style="width: 3%">{{ $_19_2_date }}</td>
+                    <td style="width: 3%">{{ $_19_2_class }}</td>
+                    <td style="width: 3%">{{ $_19_2_LTG }}</td>
+                    <td style="width: 3%">{{ $_19_2_RTG }}</td>
+                    <td style="width: 3%">{{ $_19_1_RTG }}</td>
+                    <td style="width: 3%;font-size: 25px;color: red"> <b>{{ $_19_1_RTG - $_19_2_RTG }}</b></td>
+                    <td style="width: 3%">{{ $pphn }}</td>
+                    <td style="width: 3%"></td>
+                    <td style="width: 3%;color: blue">{{ $pphn - $_3phn }}</td>
+                    <td style="width: 3%">{{ $_1fp }}</td>
+                    <td style="width: 3%;font-size: 25px;color: red"> <b>{{ $_1fp- ($pphn - $_3phn) }}</b></td>
+                    <td style="width: 3%">{{ $_3phn }}</td>
+                    <td style="width: 3%;font-size: 25px;color: red"> <b>{{ $_3phn-($_1fp- ($pphn - $_3phn)) }}</b></td>
+                    <td style="width: 5%"></td>
+
+
+
+                    <td style="width: 3%;font-size: 25px;color: red"> <b>{{ $_19_1_RTG - $_19_2_RTG }}</b></td>
+                    <td style="width: 3%;color: blue">{{ $pphn - $_3phn }}</td>
+                    <td style="width: 3%;font-size: 25px;color: red"> <b>{{ $_3phn-($_1fp- ($pphn - $_3phn)) }}</b></td>
+                    <td style="width: 3%">{{ $_19_2_LTG }}</td>
+                    <td style="width: 3%">{{ $_1fp }}</td>
+                    <td style="width: 3%;font-size: 35px;color: red"> <b>
+                        {{
+
+                            $_20_1_4_ans = ($_19_1_RTG - $_19_2_RTG) +  ($pphn - $_3phn) +  ($_3phn-($_1fp- ($pphn - $_3phn))) + ($_19_2_LTG) 
+                        }}
+                        </b>
+                    </td>
+                    <td style="width: 3%">{{ $_19_2_LTG }}</td>
+                    <td style="width: 3%">{{ $_1fp }}</td>
+                    <td style="width: 3%;font-size: 15px;color:blue">{{ $_2fp - $_1fp }}</td>
+                    <td style="width: 3%;font-size: 25px;color: red"> <b>{{ $_1fp - $_19_2_LTG }}</b></td>
+                    <td style="width: 3%">{{ $_19_2_LTG }}</td>
+                    <td style="width: 3%">{{ $_1fp }}</td>
+                    <td style="width: 3%;font-size: 35px;color:blue">
+                        <b>{{ $_20_1_4_ans - ($_1fp - $_19_2_LTG) }}</b>
+                    </td>
+                    <td style="width: 3%;font-size: 35px;color:darkgreen">
+                        <b>{{ abs($_19_2_LTG) + abs($_1fp) + abs($_20_1_4_ans - ($_1fp - $_19_2_LTG)) }}</b>
+                    </td>
+                </tr>
+                <tr>
+                    <td style="width: 3%"></td>
+                    <td style="width: 3%"></td>
+                    <td style="width: 25%;font-size: 15px;"> {{ $ppor }} </td>
+                    <td style="width: 3%">{{ $_19_3_PODDS }}</td>
+                    <td style="width: 3%"></td>
+                    <td style="width: 3%">{{ $_19_3_date  }}</td>
+                    <td style="width: 3%">{{ $_19_3_class  }}</td>
+                    <td style="width: 3%">{{ $_19_3_LTG  }}</td>
+                    <td style="width: 3%">{{ $_19_3_RTG  }}</td>
+                    <td style="width: 3%">{{ $_19_2_RTG }}</td>
+                    <td style="width: 3%;font-size: 25px;color: red"> <b>{{ $_19_2_RTG - $_19_3_RTG }}</b></td>
+                    <td style="width: 3%">{{ $phn }}</td>
+                    <td style="width: 3%"></td>
+                    <td style="width: 3%;color: blue">{{ $phn - $pphn }}</td>
+                    <td style="width: 3%">{{ $_2fp }}</td>
+                    <td style="width: 3%;font-size: 25px;color: red"> <b>{{ $_2fp-($phn - $pphn) }}</b></td>
+                    <td style="width: 3%">{{ $pphn }}</td>
+                    <td style="width: 3%;font-size: 25px;color: red"> <b>{{ $pphn - ($_2fp-($phn - $pphn)) }}</b></td>
+                    <td style="width: 5%"></td>
+
+
+
+                    <td style="width: 3%;font-size: 25px;color: red"> <b>{{ $_19_2_RTG - $_19_3_RTG }}</b></td>
+                    <td style="width: 3%;color: blue">{{ $phn - $pphn }}</td>
+                    <td style="width: 3%;font-size: 25px;color: red"> <b>{{ $pphn - ($_2fp-($phn - $pphn)) }}</b></td>
+                    <td style="width: 3%">{{ $_19_3_LTG  }}</td>
+                    <td style="width: 3%">{{ $_2fp }}</td>
+                    
+                    <td style="width: 3%;font-size: 35px;color: red"> <b>
+                        {{
+                            $_20_2_4_ans = ($_19_2_RTG - $_19_3_RTG) +  ($phn - $pphn) + ($pphn - ($_2fp-($phn - $pphn))) + ($_19_3_LTG) 
+                        }}
+                        </b>
+                    </td>
+                    
+                    <td style="width: 3%">{{ $_19_3_LTG  }}</td>
+                    <td style="width: 3%">{{ $_2fp }}</td>
+                    <td style="width: 3%"></td>
+                    <td style="width: 3%;font-size: 25px;color: red"> <b>{{ $_2fp - $_19_3_LTG }}</b></td>
+                    <td style="width: 3%">{{ $_19_3_LTG  }}</td>
+                    <td style="width: 3%">{{ $_2fp }}</td>
+                    <td style="width: 3%;font-size: 35px;color:blue">
+                        <b>{{ $_20_2_4_ans - ($_2fp - $_19_3_LTG) }}</b>
+                    </td>
+                    <td style="width: 3%;font-size: 35px;color:darkgreen">
+                        <b>{{ abs($_19_3_LTG) + abs($_2fp) + abs($_20_2_4_ans - ($_2fp - $_19_3_LTG)) }}</b>
+                    </td>
+                </tr>                
+            @endforeach
+        </tbody>
+    </table>
+
+
+    {{-- 21 --}}
+    <br><br><br><br><br><br>
+
+    <h1>Formula: 21 | {{ $new_rt }}</h1>
+    <h5>{{ $race_title }}</h5>
+    <h1>******************************************************************************************************</h1>
+    <table class="table table-bordered" style="page-break-after: always;">
+        <tbody>
+            @php
+                $new_rt = intval($last_page[0]['rt']);
+            @endphp
+            <tr>
+                <td>1</td>
+                <td>2</td>
+                <td>3</td>
+                <td>P ODDS</td>
+                <td>C ODDS</td>
+                <td>Date</td>
+                
+                <td>F/P</td>
+                <td>F/P ANS</td>
+                <td style="color: chartreuse"><b>ANS</b></td>    
+                <td>**</td>
+                <td>RTG ANS</td>
+                <td>LTG</td>
+                <td>F/P</td>
+                <td>Final Ans</td>
+                <td>****</td>
+                <td>**</td>
+                <td>**A**</td>
+                <td>Class</td>
+
+            </tr>
+            @foreach ($last_page as $k => $item)
+                @php
+                    if (isset($item['pphn'])) {
+                        $pphn = $item['pphn'];
+                    } else {
+                        $pphn = 0;
+                    }
+                    if (isset($item['ppor'])) {
+                        $ppor = $item['ppor'];
+                    } else {
+                        $ppor = 0;
+                    }
+                    if (isset($item['3or'])) {
+                        $_3or = $item['3or'];
+                    } else {
+                        $_3or = 0;
+                    }
+                    if (isset($item['3phn'])) {
+                        $_3phn = intval($item['3phn']);
+                    } else {
+                        $_3phn = 0;
+                    }
+
+                    if (isset($item['1fp'])) {
+                        $_1fp = intval($item['1fp']);
+                    } else {
+                        $_1fp = 0;
+                    }
+
+                    if (isset($item['2fp'])) {
+                        $_2fp = intval($item['2fp']);
+                    } else {
+                        $_2fp = 0;
+                    }
+
+                    if (isset($item['3fp'])) {
+                        $_3fp = intval($item['3fp']);
+                    } else {
+                        $_3fp = 0;
+                    }
+
+                    if (isset($item['phn'])) {
+                        $phn = $item['phn'];
+                    } else {
+                        $phn = 0;
+                    }
+                    if (isset($item['por'])) {
+                        $por = $item['por'];
+                    } else {
+                        $por = 0;
+                    }
+
+                    if (isset($item['arr2']['b4'])) {
+                        $high_weight1 = explode('kg', $item['arr2']['b4'][2])[0];
+                    } else {
+                        $high_weight1 = 0;
+                    }
+
+                    if (isset($item['arr2']['b4'])) {
+                        $high_weight2 = explode('kg', $item['arr2']['b4'][2])[0];
+                    } else {
+                        $high_weight2 = 0;
+                    }
+
+                    $yellow1 = intval($phn) - 1 + intval(substr($por, strpos($por, 'Rtg') + 3, 3));
+                    if ($phn == 1) {
+                        $yellow1_phn = $yellow1;
+                    } else {
+                        $yellow1_phn = $yellow1 - $phn;
+                    }
+                    $newrt_hw1 = $new_rt - $high_weight1;
+
+                    if ($newrt_hw1 == 0) {
+                        $a1 = $yellow1_phn;
+                        $sing1 = 'SC';
+                    } elseif ($newrt_hw1 < 0) {
+                        $a1 = $yellow1_phn - abs($newrt_hw1);
+                        $sing1 = 'D';
+                    } else {
+                        $a1 = $yellow1_phn + abs($newrt_hw1);
+                        $sing1 = 'P';
+                    }
+
+                    $yellow2 = intval($phn) - 1 + intval(substr($por, strpos($por, 'Rtg') + 3, 3));
+                    if ($phn == 1) {
+                        $yellow2_phn = $yellow2;
+                    } else {
+                        $yellow2_phn = $yellow2 - $phn;
+                    }
+                    $newrt_hw2 = $new_rt - $high_weight2;
+
+                    if ($newrt_hw2 == 0) {
+                        $a2 = $yellow2_phn;
+                        $sing2 = 'SC';
+                    } elseif ($newrt_hw2 < 0) {
+                        $a2 = $yellow2_phn - abs($newrt_hw2);
+                        $sing2 = 'Demosition';
+                    } else {
+                        $a2 = $yellow2_phn + abs($newrt_hw2);
+                        $sing2 = 'Promosition';
+                    }
+
+                    try {
+                        $position_w1 = explode('kg', $item['arr2']['b3'][2])[0];
+                    } catch (\Throwable $th) {
+                        $position_w1 = 0;
+                    }
+
+                    try {
+                        $third_position_w1 = explode('kg', $item['arr2']['b2'][2])[0];
+                    } catch (\Throwable $th) {
+                        $third_position_w1 = 0;
+                    }
+
+                    if ($position_w1 == 1) {
+                        $a3 = 0;
+                    } elseif ($position_w1 == 3) {
+                        $a3 = 0;
+                    } else {
+                        $a3 = $position_w1 - $third_position_w1;
+                    }
+
+                    try {
+                        $position_w2 = explode('kg', $item['arr2']['b3'][2])[0];
+                    } catch (\Throwable $th) {
+                        $position_w2 = 0;
+                    }
+
+                    try {
+                        $third_position_w2 = explode('kg', $item['arr2']['b2'][2])[0];
+                    } catch (\Throwable $th) {
+                        $third_position_w2 = 0;
+                    }
+
+                    try {
+                        $first_position = explode('kg', $item['arr2']['b1'][2])[0];
+                    } catch (\Throwable $th) {
+                        $first_position = 0;
+                    }
+
+                    if ($position_w2 == 1) {
+                        $a4 = 0;
+                    } elseif ($position_w2 == 3) {
+                        $a4 = 0;
+                    } else {
+                        $a4 = $position_w2 - $third_position_w2;
+                    }
+
+                    if ($a3 == 0) {
+                        $a5 = $a1;
+                    } elseif ($a3 < 0) {
+                        $a5 = $a1 - abs($a3);
+                    } else {
+                        $a5 = $a1 + abs($a3);
+                    }
+
+                    if ($a4 == 0) {
+                        $a6 = $a2;
+                    } elseif ($a4 < 0) {
+                        $a6 = $a2 - abs($a4);
+                    } else {
+                        $a6 = $a2 + abs($a4);
+                    }
+
+                    // use start
+
+                    $z1 = $high_weight1 - $first_position;
+                    $z2 = $a5 - $third_position_w1;
+                    if ($z2 == 0) {
+                        $z3 = $z1;
+                    } elseif ($z2 < 0) {
+                        $z3 = abs($z2) - $z1;
+                    } else {
+                        $z3 = abs($z2) + $z1;
+                    }
+
+                    $z4 = $third_position_w1 - $a5;
+                    $z5 = $high_weight1 - $z3 - $a5;
+
+                    $z6 = abs($z4);
+                    $z7 = abs($z5);
+                    if ($z5 < 0) {
+                        $s1 = '-';
+                    } else {
+                        $s1 = '';
+                    }
+                    if ($z4 < 0) {
+                        $s2 = '-';
+                    } else {
+                        $s2 = '';
+                    }
+
+                    if ($z6 > $z7) {
+                        $z8 = $z6 - $z7;
+                        if ($s1 == '-') {
+                            $s4 = $a5 - abs($z8);
+                        } else {
+                            $s4 = $a5 + abs($z8);
+                        }
+                        $z9 = '';
+                    } else {
+                        $z8 = '';
+                        $z9 = $z7 - $z6;
+                        if ($s2 == '-') {
+                            $s4 = $a5 - abs($z9);
+                        } else {
+                            $s4 = $a5 + abs($z9);
+                        }
+                    }
+
+                    if ($z5 < 0) {
+                        $s3 = $third_position_w1 - abs($z5);
+                    } else {
+                        $s3 = $third_position_w1 + abs($z5);
+                    }
+
+                    $s5 = intval($item['no']) - 1 + intval($item['rt']) - $third_position_w1;
+                    $s6 = $a5 + $z3 - $third_position_w1;
+                    $s7 = abs($s6) - abs($s5);
+                    if (abs($s6) < abs($s5)) {
+                        $s56_sing = $s6 < 0 ? '-' : '';
+                    } else {
+                        $s56_sing = $s5 < 0 ? '-' : '';
+                    }
+
+                    if ($z2 < 0) {
+                        $az52 = $a5 + abs($z2);
+                    } else {
+                        $az52 = $a5;
+                    }
+
+                    if (isset($item['arr2'])) {
+                        $arr2_b3_1 = intval($item['arr2']['b3'][1]);
+                        $arr2_b3_0 = intval($item['arr2']['b3'][0]);
+                        $item_no = intval($item['no']);
+                        $arr2_3_1__item_no = $arr2_b3_1 - $item_no;
+                    } else {
+                        $arr2_b3_1 = 0;
+                        $arr2_b3_0 = 0;
+                        $item_no = 0;
+                        $arr2_3_1__item_no = 0;
+                    }
+                    $current_weight = explode('kg', $item['weight'])[0];
+                    if ($arr2_3_1__item_no < 0) {
+                        $sp1 = $current_weight - abs($arr2_3_1__item_no);
+                    } else {
+                        $sp1 = $current_weight + $arr2_3_1__item_no;
+                    }
+                    $sp2 = $position_w2 - $sp1;
+
+                    $sp3 = intval($item['arr2']['b3'][0] ?? 0);
+                    $sp4 = intval($arr2_b3_1) - $sp3;
+                    $sp5 = intval($current_weight) - intval($position_w2);
+
+                    preg_match('/\d+(?:\.\d+)?(?!.*\d+(?:\.\d+)?)/', $_3or, $_19_1_PODDS_matches);
+                    $_19_1_PODDS = $_19_1_PODDS_matches[0] ?? null;
+                    preg_match('/\d+(?:\.\d+)?(?!.*\d+(?:\.\d+)?)/', $por, $_19_2_PODDS_matches);
+                    $_19_2_PODDS = $_19_2_PODDS_matches[0] ?? null;
+                    preg_match('/\d+(?:\.\d+)?(?!.*\d+(?:\.\d+)?)/', $ppor, $_19_3_PODDS_matches);
+                    $_19_3_PODDS = $_19_3_PODDS_matches[0] ?? null;
+
+
+                    $pattern_for_class = '/\b(\d{3,4}m\s+\w+\d+\s+\w+(?:-\w+)?)/';
+                    preg_match($pattern_for_class, $_3or, $_19_1_class_matches);
+                    $_19_1_class = $_19_1_class_matches[1] ?? null;
+                    preg_match($pattern_for_class, $por, $_19_2_class_matches);
+                    $_19_2_class = $_19_2_class_matches[1] ?? null;
+                    preg_match($pattern_for_class, $ppor, $_19_3_class_matches);
+                    $_19_3_class = $_19_3_class_matches[1] ?? null;
+
+
+                    preg_match('/\b\d{2}[A-Za-z]{3}\d{2}\b/', $_3or, $_19_1_date_matches);
+                    $_19_1_date = $_19_1_date_matches[0] ?? null;
+                    preg_match('/\b\d{2}[A-Za-z]{3}\d{2}\b/', $por, $_19_2_date_matches);
+                    $_19_2_date = $_19_2_date_matches[0] ?? null;
+                    preg_match('/\b\d{2}[A-Za-z]{3}\d{2}\b/', $ppor, $_19_3_date_matches);
+                    $_19_3_date = $_19_3_date_matches[0] ?? null;
+
+
+                    preg_match('/\b\d+(\.\d+)?(?=L)/', $_3or, $_19_1_LTG_matches);
+                    $_19_1_LTG = $_19_1_LTG_matches[0] ?? null;
+                    preg_match('/\b\d+(\.\d+)?(?=L)/', $por, $_19_2_LTG_matches);
+                    $_19_2_LTG = $_19_2_LTG_matches[0] ?? null;
+                    preg_match('/\b\d+(\.\d+)?(?=L)/', $ppor, $_19_3_LTG_matches);
+                    $_19_3_LTG = $_19_3_LTG_matches[0] ?? null;
+
+
+                    preg_match('/Rtg\s+(\d+)/', $_3or, $_19_1_RTG_matches);
+                    $_19_1_RTG = $_19_1_RTG_matches[1] ?? null;
+                    preg_match('/Rtg\s(\d+)/', $por, $_19_2_RTG_matches);
+                    $_19_2_RTG = $_19_2_RTG_matches[1] ?? null;
+                    preg_match('/Rtg\s(\d+)/', $ppor, $_19_3_RTG_matches);
+                    $_19_3_RTG = $_19_3_RTG_matches[1] ?? null;
+                    $_col8_f21 = $_1fp - $_3fp;
+                    $_col8_f21_tr2 = $_2fp - $_1fp;
+                    if ($_col8_f21 >= 0) {
+                        $col9_21_tr1 = $_col8_f21 + abs($_col8_f21_tr2); 
+                    } else {
+                        $col9_21_tr1 = (abs($_col8_f21) + abs($_col8_f21_tr2))*(-1);
+                    }
+                    
+                    
+
+                @endphp
+                
+                <tr>
+                    <td style="width: 1%;font-size: 15px;"> <b>{{ $item_no }}</b></td>
+                    <td style="width: 3%">{{ $item['hourse_name'] }}</td>
+                    <td style="width: 15%;font-size: 10px;"> {{ $_3or }} </td>
+                    <td style="width: 3%">{{ $_19_1_PODDS }}</td>
+                    <td style="width: 3%"></td>
+                    <td style="width: 3%">{{ $_19_1_date }}</td>
+                    
+                    <td style="width: 3%">{{ $_3fp }}</td>
+                    <td style="width: 3%;font-size: 15px;color:blue">{{ $_col8_f21 }}</td>
+                    <td style="width: 3%;color: darkorchid;font-size: 25px;"><b>
+                       {{ $col9_21_tr1 }}
+                    </b></td>
+                    <td style="width: 3%"></td>
+                    <td style="width: 3%;font-size: 25px;color: red"> <b>{{ intval($item['rt']) - $_19_1_RTG }}</b></td>
+                    <td style="width: 3%">{{ $_19_1_LTG }}</td>
+                    <td style="width: 3%">{{ $_3fp }}</td>
+                    <td style="width: 3%;font-size: 35px;color:blue">
+                        <b>{{ $_4ans - ($_3fp - $_19_1_LTG) }}</b>
+                    </td>
+                    <td style="width: 3%;font-size: 25px;color: red"> <b>
+                        {{ ($_4ans - ($_3fp - $_19_1_LTG)) - ($_20_1_4_ans - ($_1fp - $_19_2_LTG)) }}
+                    </b></td>
+                    <td style="width: 3%;font-size: 35px;color:darkgreen">
+                        <b>{{ abs($_19_1_LTG) + abs($_3fp) + abs($_4ans - ($_3fp - $_19_1_LTG)) }}</b>
+                    </td>
+                    <td style="width: 3%;font-size: 25px;color: red"> <b>
+                      {{ 
+                         (abs($_19_1_LTG) + abs($_3fp) + abs($_4ans - ($_3fp - $_19_1_LTG))) - 
+                         (abs($_19_2_LTG) + abs($_1fp) + abs($_20_1_4_ans - ($_1fp - $_19_2_LTG)))
+                      }}  
+                    </b></td>
+                    <td style="width: 3%">{{ $_19_1_class }}</td>
+                </tr>
+                <tr>
+                    <td style="width: 3%"></td>
+                    <td style="width: 3%"></td>
+                    <td style="width: 25%;font-size: 15px;"> {{ $por }} </td>
+                    <td style="width: 3%">{{ $_19_2_PODDS }}</td>
+                    <td style="width: 3%"></td>
+                    <td style="width: 3%">{{ $_19_2_date }}</td>                    
+                    <td style="width: 3%">{{ $_1fp }}</td>
+                    <td style="width: 3%;font-size: 15px;color:blue">{{ $_col8_f21_tr2 }}</td>
+                    <td style="width: 3%;color: chartreuse"><b>
+
+                    </b></td>
+                    <td style="width: 3%"></td>
+                    <td style="width: 3%;font-size: 25px;color: red"> <b>{{ $_19_1_RTG - $_19_2_RTG }}</b></td>
+                    <td style="width: 3%">{{ $_19_2_LTG }}</td>
+                    <td style="width: 3%">{{ $_1fp }}</td>
+                    <td style="width: 3%;font-size: 35px;color:blue">
+                        <b>{{ $_20_1_4_ans - ($_1fp - $_19_2_LTG) }}</b>
+                    </td>
+                    <td style="width: 3%"></td>
+                    <td style="width: 3%;font-size: 35px;color:darkgreen">
+                        <b>{{ abs($_19_2_LTG) + abs($_1fp) + abs($_20_1_4_ans - ($_1fp - $_19_2_LTG)) }}</b>
+                    </td>
+                    <td style="width: 3%"></td>
+                    <td style="width: 3%">{{ $_19_2_class }}</td>
+                </tr>
+                <tr>
+                    <td style="width: 3%"></td>
+                    <td style="width: 3%"></td>
+                    <td style="width: 25%;font-size: 15px;"> {{ $ppor }} </td>
+                    <td style="width: 3%">{{ $_19_3_PODDS }}</td>
+                    <td style="width: 3%"></td>
+                    <td style="width: 3%">{{ $_19_3_date  }}</td>                    
+                    <td style="width: 3%">{{ $_2fp }}</td>
+                    <td style="width: 3%"></td>
+                    <td style="width: 3%"></td>
+                    <td style="width: 3%"></td>
+                    <td style="width: 3%;font-size: 25px;color: red"> <b>{{ $_19_2_RTG - $_19_3_RTG }}</b></td>
+                    <td style="width: 3%">{{ $_19_3_LTG  }}</td>
+                    <td style="width: 3%">{{ $_2fp }}</td>
+                    <td style="width: 3%;font-size: 35px;color:blue">
+                        <b>{{ $_20_2_4_ans - ($_2fp - $_19_3_LTG) }}</b>
+                    </td>
+                    <td style="width: 3%"></td>
+                    <td style="width: 3%;font-size: 35px;color:darkgreen">
+                        <b>{{ abs($_19_3_LTG) + abs($_2fp) + abs($_20_2_4_ans - ($_2fp - $_19_3_LTG)) }}</b>
+                    </td>
+                    <td style="width: 3%"></td>
+                    <td style="width: 3%">{{ $_19_3_class  }}</td>
+                </tr>                
+            @endforeach
+        </tbody>
+    </table>
+
+
+     {{-- 22 --}}
+     <br><br><br><br><br><br>
+
+     <h1>Formula: 22 | {{ $new_rt }}</h1>
+     <h5>{{ $race_title }}</h5>
+     <h1>******************************************************************************************************</h1>
+     <table class="table table-bordered" style="page-break-after: always;">
+         <tbody>
+             @php
+                 $new_rt = intval($last_page[0]['rt']);
+             @endphp
+             <tr>
+                 <td>1</td>
+                 <td>2</td>
+                 <td>3</td>
+                 <td>P ODDS</td>
+                 <td>C ODDS</td>
+                 <td>Date</td>
+                 <td>F/P ANS</td>
+                 <td style="color: chartreuse"><b>ANS</b></td>    
+                 <td>**</td>
+                 <td>****</td>
+                 <td>RTG ANS</td>
+                 <td>**A**</td>
+                 <td>F/P</td>
+                 <td>Class</td>
+ 
+             </tr>
+             @foreach ($last_page as $k => $item)
+                 @php
+                     if (isset($item['pphn'])) {
+                         $pphn = $item['pphn'];
+                     } else {
+                         $pphn = 0;
+                     }
+                     if (isset($item['ppor'])) {
+                         $ppor = $item['ppor'];
+                     } else {
+                         $ppor = 0;
+                     }
+                     if (isset($item['3or'])) {
+                         $_3or = $item['3or'];
+                     } else {
+                         $_3or = 0;
+                     }
+                     if (isset($item['3phn'])) {
+                         $_3phn = intval($item['3phn']);
+                     } else {
+                         $_3phn = 0;
+                     }
+ 
+                     if (isset($item['1fp'])) {
+                         $_1fp = intval($item['1fp']);
+                     } else {
+                         $_1fp = 0;
+                     }
+ 
+                     if (isset($item['2fp'])) {
+                         $_2fp = intval($item['2fp']);
+                     } else {
+                         $_2fp = 0;
+                     }
+ 
+                     if (isset($item['3fp'])) {
+                         $_3fp = intval($item['3fp']);
+                     } else {
+                         $_3fp = 0;
+                     }
+ 
+                     if (isset($item['phn'])) {
+                         $phn = $item['phn'];
+                     } else {
+                         $phn = 0;
+                     }
+                     if (isset($item['por'])) {
+                         $por = $item['por'];
+                     } else {
+                         $por = 0;
+                     }
+ 
+                     if (isset($item['arr2']['b4'])) {
+                         $high_weight1 = explode('kg', $item['arr2']['b4'][2])[0];
+                     } else {
+                         $high_weight1 = 0;
+                     }
+ 
+                     if (isset($item['arr2']['b4'])) {
+                         $high_weight2 = explode('kg', $item['arr2']['b4'][2])[0];
+                     } else {
+                         $high_weight2 = 0;
+                     }
+ 
+                     $yellow1 = intval($phn) - 1 + intval(substr($por, strpos($por, 'Rtg') + 3, 3));
+                     if ($phn == 1) {
+                         $yellow1_phn = $yellow1;
+                     } else {
+                         $yellow1_phn = $yellow1 - $phn;
+                     }
+                     $newrt_hw1 = $new_rt - $high_weight1;
+ 
+                     if ($newrt_hw1 == 0) {
+                         $a1 = $yellow1_phn;
+                         $sing1 = 'SC';
+                     } elseif ($newrt_hw1 < 0) {
+                         $a1 = $yellow1_phn - abs($newrt_hw1);
+                         $sing1 = 'D';
+                     } else {
+                         $a1 = $yellow1_phn + abs($newrt_hw1);
+                         $sing1 = 'P';
+                     }
+ 
+                     $yellow2 = intval($phn) - 1 + intval(substr($por, strpos($por, 'Rtg') + 3, 3));
+                     if ($phn == 1) {
+                         $yellow2_phn = $yellow2;
+                     } else {
+                         $yellow2_phn = $yellow2 - $phn;
+                     }
+                     $newrt_hw2 = $new_rt - $high_weight2;
+ 
+                     if ($newrt_hw2 == 0) {
+                         $a2 = $yellow2_phn;
+                         $sing2 = 'SC';
+                     } elseif ($newrt_hw2 < 0) {
+                         $a2 = $yellow2_phn - abs($newrt_hw2);
+                         $sing2 = 'Demosition';
+                     } else {
+                         $a2 = $yellow2_phn + abs($newrt_hw2);
+                         $sing2 = 'Promosition';
+                     }
+ 
+                     try {
+                         $position_w1 = explode('kg', $item['arr2']['b3'][2])[0];
+                     } catch (\Throwable $th) {
+                         $position_w1 = 0;
+                     }
+ 
+                     try {
+                         $third_position_w1 = explode('kg', $item['arr2']['b2'][2])[0];
+                     } catch (\Throwable $th) {
+                         $third_position_w1 = 0;
+                     }
+ 
+                     if ($position_w1 == 1) {
+                         $a3 = 0;
+                     } elseif ($position_w1 == 3) {
+                         $a3 = 0;
+                     } else {
+                         $a3 = $position_w1 - $third_position_w1;
+                     }
+ 
+                     try {
+                         $position_w2 = explode('kg', $item['arr2']['b3'][2])[0];
+                     } catch (\Throwable $th) {
+                         $position_w2 = 0;
+                     }
+ 
+                     try {
+                         $third_position_w2 = explode('kg', $item['arr2']['b2'][2])[0];
+                     } catch (\Throwable $th) {
+                         $third_position_w2 = 0;
+                     }
+ 
+                     try {
+                         $first_position = explode('kg', $item['arr2']['b1'][2])[0];
+                     } catch (\Throwable $th) {
+                         $first_position = 0;
+                     }
+ 
+                     if ($position_w2 == 1) {
+                         $a4 = 0;
+                     } elseif ($position_w2 == 3) {
+                         $a4 = 0;
+                     } else {
+                         $a4 = $position_w2 - $third_position_w2;
+                     }
+ 
+                     if ($a3 == 0) {
+                         $a5 = $a1;
+                     } elseif ($a3 < 0) {
+                         $a5 = $a1 - abs($a3);
+                     } else {
+                         $a5 = $a1 + abs($a3);
+                     }
+ 
+                     if ($a4 == 0) {
+                         $a6 = $a2;
+                     } elseif ($a4 < 0) {
+                         $a6 = $a2 - abs($a4);
+                     } else {
+                         $a6 = $a2 + abs($a4);
+                     }
+ 
+                     // use start
+ 
+                     $z1 = $high_weight1 - $first_position;
+                     $z2 = $a5 - $third_position_w1;
+                     if ($z2 == 0) {
+                         $z3 = $z1;
+                     } elseif ($z2 < 0) {
+                         $z3 = abs($z2) - $z1;
+                     } else {
+                         $z3 = abs($z2) + $z1;
+                     }
+ 
+                     $z4 = $third_position_w1 - $a5;
+                     $z5 = $high_weight1 - $z3 - $a5;
+ 
+                     $z6 = abs($z4);
+                     $z7 = abs($z5);
+                     if ($z5 < 0) {
+                         $s1 = '-';
+                     } else {
+                         $s1 = '';
+                     }
+                     if ($z4 < 0) {
+                         $s2 = '-';
+                     } else {
+                         $s2 = '';
+                     }
+ 
+                     if ($z6 > $z7) {
+                         $z8 = $z6 - $z7;
+                         if ($s1 == '-') {
+                             $s4 = $a5 - abs($z8);
+                         } else {
+                             $s4 = $a5 + abs($z8);
+                         }
+                         $z9 = '';
+                     } else {
+                         $z8 = '';
+                         $z9 = $z7 - $z6;
+                         if ($s2 == '-') {
+                             $s4 = $a5 - abs($z9);
+                         } else {
+                             $s4 = $a5 + abs($z9);
+                         }
+                     }
+ 
+                     if ($z5 < 0) {
+                         $s3 = $third_position_w1 - abs($z5);
+                     } else {
+                         $s3 = $third_position_w1 + abs($z5);
+                     }
+ 
+                     $s5 = intval($item['no']) - 1 + intval($item['rt']) - $third_position_w1;
+                     $s6 = $a5 + $z3 - $third_position_w1;
+                     $s7 = abs($s6) - abs($s5);
+                     if (abs($s6) < abs($s5)) {
+                         $s56_sing = $s6 < 0 ? '-' : '';
+                     } else {
+                         $s56_sing = $s5 < 0 ? '-' : '';
+                     }
+ 
+                     if ($z2 < 0) {
+                         $az52 = $a5 + abs($z2);
+                     } else {
+                         $az52 = $a5;
+                     }
+ 
+                     if (isset($item['arr2'])) {
+                         $arr2_b3_1 = intval($item['arr2']['b3'][1]);
+                         $arr2_b3_0 = intval($item['arr2']['b3'][0]);
+                         $item_no = intval($item['no']);
+                         $arr2_3_1__item_no = $arr2_b3_1 - $item_no;
+                     } else {
+                         $arr2_b3_1 = 0;
+                         $arr2_b3_0 = 0;
+                         $item_no = 0;
+                         $arr2_3_1__item_no = 0;
+                     }
+                     $current_weight = explode('kg', $item['weight'])[0];
+                     if ($arr2_3_1__item_no < 0) {
+                         $sp1 = $current_weight - abs($arr2_3_1__item_no);
+                     } else {
+                         $sp1 = $current_weight + $arr2_3_1__item_no;
+                     }
+                     $sp2 = $position_w2 - $sp1;
+ 
+                     $sp3 = intval($item['arr2']['b3'][0] ?? 0);
+                     $sp4 = intval($arr2_b3_1) - $sp3;
+                     $sp5 = intval($current_weight) - intval($position_w2);
+ 
+                     preg_match('/\d+(?:\.\d+)?(?!.*\d+(?:\.\d+)?)/', $_3or, $_19_1_PODDS_matches);
+                     $_19_1_PODDS = $_19_1_PODDS_matches[0] ?? null;
+                     preg_match('/\d+(?:\.\d+)?(?!.*\d+(?:\.\d+)?)/', $por, $_19_2_PODDS_matches);
+                     $_19_2_PODDS = $_19_2_PODDS_matches[0] ?? null;
+                     preg_match('/\d+(?:\.\d+)?(?!.*\d+(?:\.\d+)?)/', $ppor, $_19_3_PODDS_matches);
+                     $_19_3_PODDS = $_19_3_PODDS_matches[0] ?? null;
+ 
+ 
+                     $pattern_for_class = '/\b(\d{3,4}m\s+\w+\d+\s+\w+(?:-\w+)?)/';
+                     preg_match($pattern_for_class, $_3or, $_19_1_class_matches);
+                     $_19_1_class = $_19_1_class_matches[1] ?? null;
+                     preg_match($pattern_for_class, $por, $_19_2_class_matches);
+                     $_19_2_class = $_19_2_class_matches[1] ?? null;
+                     preg_match($pattern_for_class, $ppor, $_19_3_class_matches);
+                     $_19_3_class = $_19_3_class_matches[1] ?? null;
+ 
+ 
+                     preg_match('/\b\d{2}[A-Za-z]{3}\d{2}\b/', $_3or, $_19_1_date_matches);
+                     $_19_1_date = $_19_1_date_matches[0] ?? null;
+                     preg_match('/\b\d{2}[A-Za-z]{3}\d{2}\b/', $por, $_19_2_date_matches);
+                     $_19_2_date = $_19_2_date_matches[0] ?? null;
+                     preg_match('/\b\d{2}[A-Za-z]{3}\d{2}\b/', $ppor, $_19_3_date_matches);
+                     $_19_3_date = $_19_3_date_matches[0] ?? null;
+ 
+ 
+                     preg_match('/\b\d+(\.\d+)?(?=L)/', $_3or, $_19_1_LTG_matches);
+                     $_19_1_LTG = $_19_1_LTG_matches[0] ?? null;
+                     preg_match('/\b\d+(\.\d+)?(?=L)/', $por, $_19_2_LTG_matches);
+                     $_19_2_LTG = $_19_2_LTG_matches[0] ?? null;
+                     preg_match('/\b\d+(\.\d+)?(?=L)/', $ppor, $_19_3_LTG_matches);
+                     $_19_3_LTG = $_19_3_LTG_matches[0] ?? null;
+ 
+ 
+                     preg_match('/Rtg\s+(\d+)/', $_3or, $_19_1_RTG_matches);
+                     $_19_1_RTG = $_19_1_RTG_matches[1] ?? null;
+                     preg_match('/Rtg\s(\d+)/', $por, $_19_2_RTG_matches);
+                     $_19_2_RTG = $_19_2_RTG_matches[1] ?? null;
+                     preg_match('/Rtg\s(\d+)/', $ppor, $_19_3_RTG_matches);
+                     $_19_3_RTG = $_19_3_RTG_matches[1] ?? null;
+                     $_col8_f21 = $_1fp - $_3fp;
+                     $_col8_f21_tr2 = $_2fp - $_1fp;
+                     if ($_col8_f21 >= 0) {
+                         $col9_21_tr1 = $_col8_f21 + abs($_col8_f21_tr2); 
+                     } else {
+                         $col9_21_tr1 = (abs($_col8_f21) + abs($_col8_f21_tr2))*(-1);
+                     }
+                     
+                     
+ 
+                 @endphp
+                 
+                 <tr>
+                     <td style="width: 1%;font-size: 15px;"> <b>{{ $item_no }}</b></td>
+                     <td style="width: 3%">{{ $item['hourse_name'] }}</td>
+                     <td style="width: 15%;font-size: 10px;"> {{ $_3or }} </td>
+                     <td style="width: 3%">{{ $_19_1_PODDS }}</td>
+                     <td style="width: 3%"></td>
+                     <td style="width: 3%">{{ $_19_1_date }}</td>
+                     
+                     
+                     <td style="width: 3%;font-size: 15px;color:blue">{{ $_col8_f21 }}</td>
+                     <td style="width: 3%;color: darkorchid;font-size: 25px;"><b>
+                        {{ $col9_21_tr1 }}
+                     </b></td>
+                     <td style="width: 3%;font-size: 25px;color: red"> <b>
+                        {{ ($_4ans - ($_3fp - $_19_1_LTG)) - ($_20_1_4_ans - ($_1fp - $_19_2_LTG)) }}
+                    </b></td>
+                     <td style="width: 3%"></td>
+                    
+                     <td style="width: 3%;font-size: 25px;color: red"> <b>{{ intval($item['rt']) - $_19_1_RTG }}</b></td>
+                     
+                     <td style="width: 3%"></td>
+                     <td style="width: 3%;font-size: 35px;color:darkgreen">{{ $_3fp }}</td>
+                     <td style="width: 3%">{{ $_19_1_class }}</td>
+                 </tr>
+                 <tr>
+                     <td style="width: 3%"></td>
+                     <td style="width: 3%"></td>
+                     <td style="width: 25%;font-size: 15px;"> {{ $por }} </td>
+                     <td style="width: 3%">{{ $_19_2_PODDS }}</td>
+                     <td style="width: 3%"></td>
+                     <td style="width: 3%">{{ $_19_2_date }}</td>                    
+                     
+                     <td style="width: 3%;font-size: 15px;color:blue">{{ $_col8_f21_tr2 }}</td>
+                     <td style="width: 3%;color: chartreuse"><b></b></td>
+                     <td style="width: 3%"></td>
+                     <td style="width: 3%"></td>
+                     <td style="width: 3%;font-size: 25px;color: red"> <b>{{ $_19_1_RTG - $_19_2_RTG }}</b></td>
+                     <td style="width: 3%"></td>
+                     <td style="width: 3%;font-size: 35px;color:darkgreen">{{ $_1fp }}</td>
+                     <td style="width: 3%">{{ $_19_2_class }}</td>
+                 </tr>
+                 <tr>
+                     <td style="width: 3%"></td>
+                     <td style="width: 3%"></td>
+                     <td style="width: 25%;font-size: 15px;"> {{ $ppor }} </td>
+                     <td style="width: 3%">{{ $_19_3_PODDS }}</td>
+                     <td style="width: 3%"></td>
+                     <td style="width: 3%">{{ $_19_3_date  }}</td>                    
+                     <td style="width: 3%"></td>
+                     <td style="width: 3%"></td>
+                     <td style="width: 3%"></td>
+                     <td style="width: 3%"></td>
+                     <td style="width: 3%;font-size: 25px;color: red"> <b>{{ $_19_2_RTG - $_19_3_RTG }}</b></td>
+                     <td style="width: 3%"></td>
+                     <td style="width: 3%;font-size: 35px;color:darkgreen">{{ $_2fp }}</td>
+                     <td style="width: 3%">{{ $_19_3_class  }}</td>
+                 </tr>                
+             @endforeach
+         </tbody>
+     </table>
+
 
 
     <!-- Latest compiled and minified JavaScript -->
