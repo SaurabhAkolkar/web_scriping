@@ -46,3 +46,7 @@ Route::post('/add-user','GoutteController@add_user');
 
 Route::get('/uk-data','GoutteController@uk_data_view');
 Route::post('/uk-data','GoutteController@uk_data');
+
+
+Route::get('/australia','GoutteController@australia_vpn_view');
+Route::post('/australia','GoutteController@australia_vpn');

@@ -48,6 +48,7 @@
                 $data_second_table = [];
                 $formula9_data = [];
                 $formula10_data = [];
+                $formula11_data = [];
             @endphp
             @foreach ($last_page as $k => $item)
                 @php
@@ -719,6 +720,75 @@
                     array_push($formula10_data,$formula10_team1);
                     array_push($formula10_data,$formula10_team2);
                     array_push($formula10_data,$formula10_team3);
+
+
+
+                    // 11 start 
+
+                    $formula11_team1 = [
+                        "                  ",
+                        $_1,
+                        $item['hname'],
+                        $codds,
+                        "                  ",
+                        $date1,
+                        $dwin1,
+                        "                  ",
+                        $prtg_a0,
+                        $prtg1,
+                        $current_rating,
+                        ($current_rating - $prtg1),
+                        $fa,
+                        $fa + ($current_rating - $prtg1),
+                        "                  ",
+                        $class_name
+                    ];
+                    $phourse_no1 = $phn2-$phn1;
+                    $phourse_no2 = $phn3-$phn2;
+                    
+                    $formula11_team2 = [
+                        "                  ",
+                        "                  ",
+                        "                  ",
+                        $ciodds,
+                        "                  ",
+                        $date2,
+                        $dwin2,
+                        "                  ",
+                        $pi2,
+                        "                  ",
+                        "                  ",
+                        "                  ",
+                        "                  ",
+                        // (((($prtg1-$prtg2) + $phourse_no1 +  ($phn1-($pi2-$phourse_no1)) + $dwin2)) - ($dwin2-$pi2)),
+                        "                  ",
+                        "                  ",
+                        $class_name2
+                    ];
+
+                    $formula11_team3 = [
+                        "                  ",
+                        "                  ",
+                        "                  ",
+                        $ciodds3,
+                        "                  ",
+                        $date3,
+                        $dwin3,
+                        "                  ",
+                        $pi3,
+                        "                  ",
+                        "                  ",
+                        "                  ",
+                        "                  ",
+                        // ((($prtg2-$prtg3) + $phourse_no2 + ($phn1-($pi3-$phourse_no2)) + $dwin3) - ($dwin3-$pi3)),
+                        "                  ",
+                        "                  ",
+                        $class_name3
+                        ];
+
+                    array_push($formula11_data,$formula11_team1);
+                    array_push($formula11_data,$formula11_team2);
+                    array_push($formula11_data,$formula11_team3);
                    
                 @endphp
                 <tr>
@@ -1465,6 +1535,55 @@
                     <td>{{ $item[11] }}</td>
                     <td>{{ $item[12] }}</td>
                     
+                </tr>
+            @endforeach
+        </tbody>
+    </table>
+
+
+
+
+    <br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>
+    <h1>Formula: 11 {{ $event_date }}</h1>
+    <h3>{{ $heading }}</h3>
+    <h1>******************************************************************************************************</h1>
+
+    <table class="table table-bordered mt-5" style="page-break-after: always;">
+        <tbody>
+            <tr>
+                <td>1</td>
+                <td>HNAME</td>
+                <td>PO</b> </td>
+                <td>CO</td>
+                <td>D</td>
+                <td>LTG ***</td>
+                <td>**</td>
+                <td>F/P</td>
+                <td>PRTG</td>
+                <td>CRTG</td>
+                <td>*** A ***</td>
+                <td>Final A***</td>
+                <td>**ANS***</td>
+                <td>********</td>
+                <td>CLASS ***</td>
+            </tr>
+            @foreach ($formula11_data as $k => $item)
+                <tr>  
+                    <td>{{ $item[1] }}</td>
+                    <td>{{ $item[2] }}</td>
+                    <td>{{ $item[3] }}</td>
+                    <td>{{ $item[4] }}</td>
+                    <td>{{ $item[5] }}</td>
+                    <td>{{ $item[6] }}</td>
+                    <td>{{ $item[7] }}</td>
+                    <td>{{ $item[8] }}</td>
+                    <td>{{ $item[9] }}</td>
+                    <td>{{ $item[10] }}</td>
+                    <td>{{ $item[11] }}</td>
+                    <td>{{ $item[12] }}</td>
+                    <td>{{ $item[13] }}</td>
+                    <td>{{ $item[14] }}</td>
+                    <td>{{ $item[15] }}</td>                    
                 </tr>
             @endforeach
         </tbody>

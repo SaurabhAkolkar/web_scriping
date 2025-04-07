@@ -1,11 +1,9 @@
 <?php
-
 namespace App\Http\Controllers;
 
 use Goutte\Client;
 use GuzzleHttp\Client as GuzzleClient;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Str;
 
 class GoutteController extends Controller
@@ -22,10 +20,10 @@ class GoutteController extends Controller
 
     public function data()
     {
-        $guzzleClient = new GuzzleClient(array(
+        $guzzleClient = new GuzzleClient([
             'timeout' => 60,
-            'verify' => false,
-        ));
+            'verify'  => false,
+        ]);
         $res = $guzzleClient->request('GET', 'https://web.jadhavcareclean.com/api/data');
         return $res->getBody()->json();
     }
@@ -33,15 +31,15 @@ class GoutteController extends Controller
     public function graph()
     {
         $goutteClient = new Client();
-        $guzzleClient = new GuzzleClient(array(
+        $guzzleClient = new GuzzleClient([
             'timeout' => 60,
-            'verify' => false,
-        ));
+            'verify'  => false,
+        ]);
         $goutteClient->setClient($guzzleClient);
         $full_url = "https://charts.racingandsports.com/Horse/GetPerformace?showExplantion=false&ids=1326873&ids=1401728&ids=1661251&ids=1627694";
         // $full_url = "https://www.racingandsports.com.au/form-guide/thoroughbred/australia/ascot/2023-04-29/R1";
         $crawler = $goutteClient->request('GET', $full_url);
-        $sub = $crawler->filter('script')->each(function ($n) {
+        $sub     = $crawler->filter('script')->each(function ($n) {
             return [
                 dump($n->text()),
             ];
@@ -51,22 +49,22 @@ class GoutteController extends Controller
     public function call_me_crawler(Request $req)
     {
         $goutteClient = new Client();
-        $guzzleClient = new GuzzleClient(array(
+        $guzzleClient = new GuzzleClient([
             'timeout' => 60,
-            'verify' => false,
-        ));
+            'verify'  => false,
+        ]);
         $goutteClient->setClient($guzzleClient);
 
         $baseurl = "https://www.racingandsports.com.au/form-guide/thoroughbred";
-        $contry = $req->contry;
-        $center = $slug = Str::slug($req->center, '-');
-        $date = $req->date;
-        $url = $baseurl . "/" . $contry . "/" . $center . "/" . $date . "/";
-        $main = [];
+        $contry  = $req->contry;
+        $center  = $slug  = Str::slug($req->center, '-');
+        $date    = $req->date;
+        $url     = $baseurl . "/" . $contry . "/" . $center . "/" . $date . "/";
+        $main    = [];
         for ($i = 1; $i < 10; $i++) {
-            $race_no = "R" . $i;
+            $race_no  = "R" . $i;
             $full_url = $url . $race_no;
-            $crawler = $goutteClient->request('GET', $full_url);
+            $crawler  = $goutteClient->request('GET', $full_url);
 
             $sub = $crawler->filter('.pa-table tbody .runner_row')->each(function ($n) {
 
@@ -81,7 +79,7 @@ class GoutteController extends Controller
             });
 
             $rating_url = $full_url . "/" . "ratings";
-            $craw = $goutteClient->request('GET', $rating_url);
+            $craw       = $goutteClient->request('GET', $rating_url);
 
             $lsr_est = $craw->filter('.tblStats tbody tr')->each(function ($n) {
                 return [
@@ -104,7 +102,7 @@ class GoutteController extends Controller
                 array_push($main_sub, collect($value)->flatten());
             }
 
-            if (!count($main_sub)) {
+            if (! count($main_sub)) {
                 break;
             }
 
@@ -114,10 +112,10 @@ class GoutteController extends Controller
 
         $race_arr = [];
         for ($i = 1; $i < 10; $i++) {
-            $race_no = "R" . $i;
+            $race_no  = "R" . $i;
             $full_url = $url . $race_no . "/" . "neurals";
-            $jacraw = $goutteClient->request('GET', $full_url);
-            $sub = $jacraw->filter('#race-title')->each(function ($n) {
+            $jacraw   = $goutteClient->request('GET', $full_url);
+            $sub      = $jacraw->filter('#race-title')->each(function ($n) {
                 return $n->html();
             });
             $ja_arr = [];
@@ -143,22 +141,22 @@ class GoutteController extends Controller
     public function new_call_me_crawler(Request $req)
     {
         $goutteClient = new Client();
-        $guzzleClient = new GuzzleClient(array(
+        $guzzleClient = new GuzzleClient([
             'timeout' => 60,
-            'verify' => false,
-        ));
+            'verify'  => false,
+        ]);
         $goutteClient->setClient($guzzleClient);
 
         $baseurl = "https://www.racingandsports.com.au/form-guide/thoroughbred";
-        $contry = $req->contry;
-        $center = $slug = Str::slug($req->center, '-');
-        $date = $req->date;
-        $url = $baseurl . "/" . $contry . "/" . $center . "/" . $date . "/";
-        $main = [];
+        $contry  = $req->contry;
+        $center  = $slug  = Str::slug($req->center, '-');
+        $date    = $req->date;
+        $url     = $baseurl . "/" . $contry . "/" . $center . "/" . $date . "/";
+        $main    = [];
         for ($i = 1; $i < 10; $i++) {
-            $race_no = "R" . $i;
+            $race_no  = "R" . $i;
             $full_url = $url . $race_no;
-            $crawler = $goutteClient->request('GET', $full_url);
+            $crawler  = $goutteClient->request('GET', $full_url);
 
             $sub = $crawler->filter('.pa-table tbody .runner_row')->each(function ($n) {
 
@@ -173,7 +171,7 @@ class GoutteController extends Controller
             });
 
             $rating_url = $full_url . "/" . "ratings";
-            $craw = $goutteClient->request('GET', $rating_url);
+            $craw       = $goutteClient->request('GET', $rating_url);
 
             $lsr_est = $craw->filter('.tblStats tbody tr')->each(function ($n) {
                 return [
@@ -196,7 +194,7 @@ class GoutteController extends Controller
                 array_push($main_sub, collect($value)->flatten());
             }
 
-            if (!count($main_sub)) {
+            if (! count($main_sub)) {
                 break;
             }
 
@@ -206,10 +204,10 @@ class GoutteController extends Controller
 
         $race_arr = [];
         for ($i = 1; $i < 10; $i++) {
-            $race_no = "R" . $i;
+            $race_no  = "R" . $i;
             $full_url = $url . $race_no . "/" . "neurals";
-            $jacraw = $goutteClient->request('GET', $full_url);
-            $sub = $jacraw->filter('#race-title')->each(function ($n) {
+            $jacraw   = $goutteClient->request('GET', $full_url);
+            $sub      = $jacraw->filter('#race-title')->each(function ($n) {
                 return $n->html();
             });
             $ja_arr = [];
@@ -235,10 +233,10 @@ class GoutteController extends Controller
     public function share()
     {
         $goutteClient = new Client();
-        $guzzleClient = new GuzzleClient(array(
+        $guzzleClient = new GuzzleClient([
             'timeout' => 60,
-            'verify' => false,
-        ));
+            'verify'  => false,
+        ]);
         $goutteClient->setClient($guzzleClient);
 
         $baseurl = "https://www.screener.in/company/compare/00000001/";
@@ -254,14 +252,14 @@ class GoutteController extends Controller
     public function getfirst()
     {
         $goutteClient = new Client();
-        $guzzleClient = new GuzzleClient(array(
+        $guzzleClient = new GuzzleClient([
             'timeout' => 60,
-            'verify' => false,
-        ));
+            'verify'  => false,
+        ]);
         $goutteClient->setClient($guzzleClient);
 
         $baseurl = "https://www.indiarace.com/Home/racingCenterEvent?venueId=11&event_date=2022-12-13&race_type=RACECARD";
-        $craw = $goutteClient->request('GET', $baseurl);
+        $craw    = $goutteClient->request('GET', $baseurl);
 
         $race_no = $craw->filter('.pagination_filter_div a')->each(function ($n) {
             return $n->attr('href');
@@ -304,14 +302,14 @@ class GoutteController extends Controller
     public function astro(Request $req)
     {
         $goutteClient = new Client();
-        $guzzleClient = new GuzzleClient(array(
+        $guzzleClient = new GuzzleClient([
             'timeout' => 60,
-            'verify' => false,
-        ));
+            'verify'  => false,
+        ]);
         $goutteClient->setClient($guzzleClient);
-        $domain = "https://www.attheraces.com";
+        $domain  = "https://www.attheraces.com";
         $baseurl = $req->center;
-        $arr = explode('/', $baseurl);
+        $arr     = explode('/', $baseurl);
 
         $goutteClient->setServerParameter('HTTP_USER_AGENT', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/109.0.0.0 Safari/537.36');
         $craw = $goutteClient->request('GET', $baseurl);
@@ -337,11 +335,11 @@ class GoutteController extends Controller
             foreach ($urls as $key => $url) {
                 if ($url != "0" && $count < 3) {
                     array_push($data, $url[0]);
-                    $data['rd' . $count] = $url[1];
-                    $data['rc' . $count] = $url[2];
+                    $data['rd' . $count]  = $url[1];
+                    $data['rc' . $count]  = $url[2];
                     $data['por' . $count] = $url[3];
-                    $data['sp' . $count] = $url[4];
-                    $count = $count + 1;
+                    $data['sp' . $count]  = $url[4];
+                    $count                = $count + 1;
                 }
             }
             array_push($main_arr, $data);
@@ -354,8 +352,8 @@ class GoutteController extends Controller
                 $craw1 = $goutteClient->request('GET', $domain . $f[0]);
 
                 $positionandrtg = "";
-                $line = "";
-                $first_rtg = "";
+                $line           = "";
+                $first_rtg      = "";
                 $craw1->filter('#tab-full-result .js-card__area .card-wrapper .card-body .card-entry')
                     ->each(function ($n) use (&$f, &$positionandrtg, &$line, &$first_rtg) {
                         if (str_contains($f["HNAME"], $n->filter(".flush a")->text()) || Str::contains($n->filter(".flush a")->text(), $f["HNAME"])) {
@@ -363,25 +361,25 @@ class GoutteController extends Controller
                         }
 
                         try {
-                            $line = $n->filter('.card-no-draw')->eq(0)->text() . " " . $n->filter('.card-cell--horse span')->eq(0)->text() . " " . $n->filter('.card-cell--stats')->eq(1)->text();
+                            $line      = $n->filter('.card-no-draw')->eq(0)->text() . " " . $n->filter('.card-cell--horse span')->eq(0)->text() . " " . $n->filter('.card-cell--stats')->eq(1)->text();
                             $first_rtg = $n->filter('.card-cell--stats')->eq(1)->text();
                         } catch (\Throwable $th) {
-                            $line = $n->filter('.card-no-draw')->eq(0)->text() . " " . $n->filter('.card-cell--horse span')->eq(0)->text() . " 0";
+                            $line      = $n->filter('.card-no-draw')->eq(0)->text() . " " . $n->filter('.card-cell--horse span')->eq(0)->text() . " 0";
                             $first_rtg = 0;
                         }
                         $positionandrtg .= $line . "<br>";
                         if ($n->filter('.card-cell--horse span')->eq(0)->text() == "1.") {
                             $f["first_rtg_line"] = $line;
-                            $f["first_rtg"] = $first_rtg;
+                            $f["first_rtg"]      = $first_rtg;
                         }
 
                     });
                 $f[$f["HNAME"]] = $positionandrtg;
                 if (count($f) > 6) {
                     $positionandrtg1 = "";
-                    $line1 = "";
-                    $first_rtg1 = "";
-                    $craw1 = $goutteClient->request('GET', $domain . $f[1]);
+                    $line1           = "";
+                    $first_rtg1      = "";
+                    $craw1           = $goutteClient->request('GET', $domain . $f[1]);
                     $craw1->filter('#tab-full-result .js-card__area .card-wrapper .card-body .card-entry')
                         ->each(function ($n) use (&$f, &$positionandrtg1, &$line1, &$first_rtg1) {
 
@@ -389,64 +387,64 @@ class GoutteController extends Controller
                                 $f["PPHN"] = $n->filter(".flush span")->text();
                             }
                             try {
-                                $line1 = $n->filter('.card-no-draw')->eq(0)->text() . " " . $n->filter('.card-cell--horse span')->eq(0)->text() . " " . $n->filter('.card-cell--stats')->eq(1)->text();
+                                $line1      = $n->filter('.card-no-draw')->eq(0)->text() . " " . $n->filter('.card-cell--horse span')->eq(0)->text() . " " . $n->filter('.card-cell--stats')->eq(1)->text();
                                 $first_rtg1 = $n->filter('.card-cell--stats')->eq(1)->text();
                             } catch (\Throwable $th) {
-                                $line1 = $n->filter('.card-no-draw')->eq(0)->text() . " " . $n->filter('.card-cell--horse span')->eq(0)->text() . " 0";
+                                $line1      = $n->filter('.card-no-draw')->eq(0)->text() . " " . $n->filter('.card-cell--horse span')->eq(0)->text() . " 0";
                                 $first_rtg1 = 0;
                             }
                             $positionandrtg1 .= $line1 . "<br>";
                             if ($n->filter('.card-cell--horse span')->eq(0)->text() == "1.") {
                                 $f["first_rtg_line1"] = $line1;
-                                $f["first_rtg1"] = $first_rtg1;
+                                $f["first_rtg1"]      = $first_rtg1;
                             } else {
                                 $f["first_rtg_line1"] = 0;
-                                $f["first_rtg1"] = $first_rtg1;
+                                $f["first_rtg1"]      = $first_rtg1;
                             }
                         });
-                    $phn = isset($f["PHN"]) ? $f["PHN"] : 0;
+                    $phn           = isset($f["PHN"]) ? $f["PHN"] : 0;
                     $f[$phn . "1"] = $positionandrtg1;
                 } else {
                     $f[$f["PHN"] . "1"] = "";
                 }
             } else {
-                $f["PHN"] = 11;
+                $f["PHN"]           = 11;
                 $f[$f["PHN"] . "1"] = "";
             }
 
             if (isset($f[2])) {
-                $craw1 = $goutteClient->request('GET', $domain . $f[2]);
+                $craw1           = $goutteClient->request('GET', $domain . $f[2]);
                 $positionandrtg2 = "";
-                $line2 = "";
-                $first_rtg2 = "";
+                $line2           = "";
+                $first_rtg2      = "";
                 $craw1->filter('#tab-full-result .js-card__area .card-wrapper .card-body .card-entry')
                     ->each(function ($n) use (&$f, &$positionandrtg2, &$line2, &$first_rtg2) {
 
                         try {
-                            $line2 = $n->filter('.card-no-draw')->eq(0)->text() . " " . $n->filter('.card-cell--horse span')->eq(0)->text() . " " . $n->filter('.card-cell--stats')->eq(1)->text();
+                            $line2      = $n->filter('.card-no-draw')->eq(0)->text() . " " . $n->filter('.card-cell--horse span')->eq(0)->text() . " " . $n->filter('.card-cell--stats')->eq(1)->text();
                             $first_rtg2 = $n->filter('.card-cell--stats')->eq(1)->text();
                         } catch (\Throwable $th) {
-                            $line2 = $n->filter('.card-no-draw')->eq(0)->text() . " " . $n->filter('.card-cell--horse span')->eq(0)->text() . " 0";
+                            $line2      = $n->filter('.card-no-draw')->eq(0)->text() . " " . $n->filter('.card-cell--horse span')->eq(0)->text() . " 0";
                             $first_rtg2 = 0;
                         }
                         $positionandrtg2 .= $line2 . "<br>";
                         if ($n->filter('.card-cell--horse span')->eq(0)->text() == "1.") {
                             $f["first_rtg_line2"] = $line2;
-                            $f["first_rtg_2"] = $first_rtg2;
+                            $f["first_rtg_2"]     = $first_rtg2;
                         }
 
                     });
-                $phn = isset($f["PHN"]) ? $f["PHN"] : 0;
+                $phn           = isset($f["PHN"]) ? $f["PHN"] : 0;
                 $f[$phn . "2"] = $positionandrtg2;
             } else {
-                $f["PHN"] = 0;
+                $f["PHN"]           = 0;
                 $f[$f["PHN"] . "2"] = "";
             }
             if (isset($f)) {
                 array_push($last_page, $f);
             }
 
-        };
+        }
 
         return view("uk")->with("last_page", $last_page)->with("time", $arr[6]);
 
@@ -459,18 +457,18 @@ class GoutteController extends Controller
     public function ast(Request $req)
     {
         $goutteClient = new Client();
-        $guzzleClient = new GuzzleClient(array(
+        $guzzleClient = new GuzzleClient([
             'timeout' => 60,
-            'verify' => false,
-        ));
+            'verify'  => false,
+        ]);
         $goutteClient->setClient($guzzleClient);
-        $domain = "https://www.racingaustralia.horse/";
+        $domain     = "https://www.racingaustralia.horse/";
         $domain_met = "https://www.racingaustralia.horse/InteractiveForm/";
-        $baseurl = $req->center;
+        $baseurl    = $req->center;
 
         $race_no = $req->race_no;
 
-        $craw_dis = $goutteClient->request('GET', $baseurl);
+        $craw_dis            = $goutteClient->request('GET', $baseurl);
         $race_distance_array = $craw_dis->filter("table")->filter('.race-title th')->each(function ($n) {
             try {
                 return $n->eq(0)->text();
@@ -481,24 +479,24 @@ class GoutteController extends Controller
 
         preg_match("/\((\d+)\s.*?\)/", $race_distance_array[$race_no - 1], $matches);
 
-        $craw = $goutteClient->request('GET', $baseurl);
+        $craw        = $goutteClient->request('GET', $baseurl);
         $hourse_data = $craw->filter("table")->filter('.race-strip-fields tr')->each(function ($n) {
             try {
 
                 $n->filter('td')->eq(9)->text();
                 try {
                     return ['link' => $n->filter('td')->eq(2)->filter("a")->attr('href'), 'no' => $n->filter('td')->eq(0)->text(), 'form' => $n->filter('td')->eq(1)->text(),
-                        'hourse_name' => $n->filter('td')->eq(2)->text(), 'rt' => $n->filter('td')->eq(9)->text()
-                        , 'weight' => $n->filter('td')->eq(6)->text(), 'barrier' => $n->filter('td')->eq(5)->text()];
+                        'hourse_name'  => $n->filter('td')->eq(2)->text(), 'rt'                    => $n->filter('td')->eq(9)->text()
+                        , 'weight'                                                                                                            => $n->filter('td')->eq(6)->text(), 'barrier' => $n->filter('td')->eq(5)->text()];
                 } catch (\Throwable $th) {
                     return 0;
                 }
             } catch (\Throwable $th) {
                 try {
                     return ['link' => $n->filter('td')->eq(2)->filter("a")->attr('href'),
-                        'no' => $n->filter('td')->eq(0)->text(), 'form' => $n->filter('td')->eq(1)->text(),
-                        'hourse_name' => $n->filter('td')->eq(2)->text(),
-                        'rt' => $n->filter('td')->eq(8)->text(), 'weight' => $n->filter('td')->eq(6)->text(), 'barrier' => $n->filter('td')->eq(5)->text()];
+                        'no'           => $n->filter('td')->eq(0)->text(), 'form'   => $n->filter('td')->eq(1)->text(),
+                        'hourse_name'  => $n->filter('td')->eq(2)->text(),
+                        'rt'           => $n->filter('td')->eq(8)->text(), 'weight' => $n->filter('td')->eq(6)->text(), 'barrier' => $n->filter('td')->eq(5)->text()];
                 } catch (\Throwable $th) {
                     return 0;
                 }
@@ -508,14 +506,14 @@ class GoutteController extends Controller
         $main = array_filter($hourse_data);
 
         $main_arr = [];
-        $start = $req->start;
-        $end = $req->end;
-        $arr = [];
+        $start    = $req->start;
+        $end      = $req->end;
+        $arr      = [];
         for ($i = $start; $i <= $end; $i++) {
-            $sub = $main[$i];
+            $sub             = $main[$i];
             $sub["race_dis"] = $matches[1];
-            $craw1 = $goutteClient->request('GET', $sub["link"]);
-            $hourse_data1 = $craw1->filter("table")->filter('.interactive-race-fields tr')->each(function ($n) {
+            $craw1           = $goutteClient->request('GET', $sub["link"]);
+            $hourse_data1    = $craw1->filter("table")->filter('.interactive-race-fields tr')->each(function ($n) {
                 try {
                     $n->filter('td i')->eq(0)->text();
                 } catch (\Throwable $th) {
@@ -527,19 +525,19 @@ class GoutteController extends Controller
                 }
             });
 
-            $emptyRemoved = array_filter($hourse_data1);
+            $emptyRemoved      = array_filter($hourse_data1);
             $two_element_array = array_slice($emptyRemoved, -3);
-            
+
             $clean_hn = preg_replace('/[^A-Za-z0-9\-]/', '', $sub["hourse_name"]);
             if (count($two_element_array) > 2) {
-                $sub["3or"] = $two_element_array[2][0];
-                $sub["3fr"] = $two_element_array[2][2];
-                $craw3 = $goutteClient->request('GET', $domain_met . $two_element_array[2][1]);
+                $sub["3or"]   = $two_element_array[2][0];
+                $sub["3fr"]   = $two_element_array[2][2];
+                $craw3        = $goutteClient->request('GET', $domain_met . $two_element_array[2][1]);
                 $hourse_data3 = $craw3->filter("table")->filter('.race-strip-fields tr')->each(function ($n) use (&$sub, &$arr1, &$clean_hn) {
                     try {
                         if (str_contains($clean_hn, preg_replace('/[^A-Za-z0-9\-]/', '', $n->filter('td')->eq(3)->text())) || str_contains(preg_replace('/[^A-Za-z0-9\-]/', '', $n->filter('td')->eq(3)->text()), $clean_hn)) {
                             $sub["3phn"] = $n->filter('td')->eq(2)->text();
-                            $sub["3fp"] = $n->filter('td')->eq(1)->text();
+                            $sub["3fp"]  = $n->filter('td')->eq(1)->text();
                         }
                     } catch (\Throwable $th) {
                         return 0;
@@ -549,11 +547,11 @@ class GoutteController extends Controller
             if (count($two_element_array) > 1) {
                 $sub["ppor"] = $two_element_array[0][0];
                 $sub["ppfr"] = $two_element_array[0][2];
-                $sub["por"] = $two_element_array[1][0];
-                $sub["pfr"] = $two_element_array[1][2];
+                $sub["por"]  = $two_element_array[1][0];
+                $sub["pfr"]  = $two_element_array[1][2];
 
                 $craw2 = $goutteClient->request('GET', $domain_met . $two_element_array[0][1]);
-                $arr1 = [];
+                $arr1  = [];
 
                 $hourse_data2 = $craw2->filter("table")->filter('.race-strip-fields tr')->each(function ($n) use (&$sub, &$arr1, &$clean_hn) {
                     try {
@@ -569,7 +567,7 @@ class GoutteController extends Controller
                         array_push($arr1, [$n->filter('td')->eq(1)->text(), $n->filter('td')->eq(2)->text(), $n->filter('td')->eq(8)->text(), $n->filter('td')->eq(3)->text()]);
                     }
                 });
-                $arr2 = [];
+                $arr2     = [];
                 $temp_arr = [];
                 foreach ($arr1 as $key => $value) {
                     if ($key == 0) {
@@ -616,14 +614,14 @@ class GoutteController extends Controller
                     $sub["arr1"] = [];
                 }
 
-                $b1 = [];
+                $b1    = [];
                 $craw3 = $goutteClient->request('GET', $domain_met . $two_element_array[1][1]);
 
                 $hourse_data2 = $craw3->filter("table")->filter('.race-strip-fields tr')->each(function ($n) use (&$sub, &$b1, &$clean_hn) {
                     try {
                         if (str_contains($clean_hn, preg_replace('/[^A-Za-z0-9\-]/', '', $n->filter('td')->eq(3)->text())) || str_contains(preg_replace('/[^A-Za-z0-9\-]/', '', $n->filter('td')->eq(3)->text()), $clean_hn)) {
                             $sub["pphn"] = $n->filter('td')->eq(2)->text();
-                            $sub["1fp"] = $n->filter('td')->eq(1)->text();
+                            $sub["1fp"]  = $n->filter('td')->eq(1)->text();
                         }
                     } catch (\Throwable $th) {
                         return 0;
@@ -633,7 +631,7 @@ class GoutteController extends Controller
                     }
                 });
 
-                $b2 = [];
+                $b2        = [];
                 $temp_arr1 = [];
 
                 foreach ($b1 as $key => $value) {
@@ -679,7 +677,7 @@ class GoutteController extends Controller
                 }
 
             } elseif (count($two_element_array) > 0) {
-                $c1 = [];
+                $c1    = [];
                 $craw2 = $goutteClient->request('GET', $domain_met . $two_element_array[0][1]);
 
                 $hourse_data2 = $craw2->filter("table")->filter('.race-strip-fields tr')->each(function ($n) use (&$sub, &$c1) {
@@ -695,7 +693,7 @@ class GoutteController extends Controller
                     }
                 });
 
-                $c2 = [];
+                $c2        = [];
                 $temp_arr2 = [];
                 foreach ($c1 as $key => $value) {
                     if ($key == 0) {
@@ -733,7 +731,7 @@ class GoutteController extends Controller
                             $c3["a4"] = $value;
                         } else {
                             $c3["a4"] = [0, 0, 0];
-                        };
+                        }
                     }
                     $sub["arr1"] = $c3;
                 } else {
@@ -743,10 +741,10 @@ class GoutteController extends Controller
                 $sub["pphn"] = "0";
                 $sub["ppfr"] = "0";
             } else {
-                $sub["phn"] = "0";
+                $sub["phn"]  = "0";
                 $sub["pphn"] = "0";
                 $sub["ppfr"] = "0";
-                $sub["pfr"] = "0";
+                $sub["pfr"]  = "0";
             }
             array_push($main_arr, $sub);
         }
@@ -762,17 +760,17 @@ class GoutteController extends Controller
     public function india(Request $req)
     {
         $goutteClient = new Client();
-        $guzzleClient = new GuzzleClient(array(
+        $guzzleClient = new GuzzleClient([
             'timeout' => 60,
-            'verify' => false,
-        ));
+            'verify'  => false,
+        ]);
         $goutteClient->setClient($guzzleClient);
         $baseurl = $req->center;
 
         preg_match('/\d{4}-\d{2}-\d{2}/', $baseurl, $event_date);
         $e_date = $event_date[0];
 
-        $craw_current_dist = $goutteClient->request('GET', $baseurl);
+        $craw_current_dist       = $goutteClient->request('GET', $baseurl);
         $hourse_current_distance = $craw_current_dist->filter('.archive_time')->each(function ($n) {
             try {
                 return $n->text();
@@ -783,10 +781,10 @@ class GoutteController extends Controller
 
         preg_match("/^\d+/", $hourse_current_distance[0], $matches);
 
-        $craw = $goutteClient->request('GET', $baseurl);
-        $race_id = $req->race_id;
+        $craw        = $goutteClient->request('GET', $baseurl);
+        $race_id     = $req->race_id;
         $race_id_tag = '#race-' . $race_id . ' .heading_div';
-        $heading = $craw->filter($race_id_tag)->each(function ($n) {
+        $heading     = $craw->filter($race_id_tag)->each(function ($n) {
             try {
                 return $n->text();
             } catch (\Throwable $th) {}
@@ -811,24 +809,24 @@ class GoutteController extends Controller
         $main = array_filter($hourse_data);
 
         $main_arr = [];
-        $start = $req->start;
-        $end = $req->end;
+        $start    = $req->start;
+        $end      = $req->end;
         for ($i = $start; $i <= $end; $i++) {
-            $sub = $main[$i];
+            $sub                     = $main[$i];
             $sub["current_distance"] = $matches[0];
-            $craw1 = $goutteClient->request('GET', $sub["link"]);
-            $count = 0;
+            $craw1                   = $goutteClient->request('GET', $sub["link"]);
+            $count                   = 0;
 
             $sub['current_rating'] = $craw1->filter('.horseStatistics-table td .right-serispan')->eq(0)->text();
 
             $craw1->filter('#siretable tr')->each(function ($n) use (&$count, &$sub) {
                 try {
-                    if (!str_contains($n->filter('.stats-table-row a')->text(), "W") && $count < 3) {
-                        $count = $count + 1;
+                    if (! str_contains($n->filter('.stats-table-row a')->text(), "W") && $count < 3) {
+                        $count                = $count + 1;
                         $sub["link" . $count] = $n->filter('.stats-table-row a')->attr('href');
                         $sub["dist" . $count] = $n->filter('.stats-table-row')->eq(2)->text();
                         $sub["prtg" . $count] = $n->filter('.stats-table-row')->eq(10)->text();
-                        $sub["wt" . $count] = $n->filter('.stats-table-row')->eq(7)->text();
+                        $sub["wt" . $count]   = $n->filter('.stats-table-row')->eq(7)->text();
                         $sub["dwin" . $count] = $n->filter('.stats-table-row')->eq(8)->text();
                         $sub["date" . $count] = $n->filter('.stats-table-row')->eq(1)->text();
                     }
@@ -840,13 +838,13 @@ class GoutteController extends Controller
             $hourse_name = explode(" ", $sub['hname'])[0];
             try {
                 $final1 = "";
-                $craw2 = $goutteClient->request('GET', $sub["link1"]);
+                $craw2  = $goutteClient->request('GET', $sub["link1"]);
                 $craw2->filter('.center_heading')->each(function ($n) use (&$sub) {
                     $sub['class_name'] = $n->text();
                 });
 
                 $rtg_no = "";
-                $rrt1 = "";
+                $rrt1   = "";
 
                 $craw2->filter('.dividend_tr')->each(function ($n) use (&$sub, &$rtg_no, &$final1, &$hourse_name, &$rrt1) {
                     try {
@@ -868,13 +866,13 @@ class GoutteController extends Controller
 
                     $sub["final1" . $hourse_name] = $final1;
                     if ($n->filter('td')->eq(1)->text() == "1") {
-                        $sub["lrtg_no1"] = $rtg_no;
+                        $sub["lrtg_no1"]   = $rtg_no;
                         $sub["lrtg_line1"] = $n->filter('td')->eq(0)->text() . " " . $n->filter('td')->eq(1)->text() . " " . $rtg_no;
                     }
                     try {
                         if (str_contains($sub['hname'], $n->filter('td')->eq(2)->filter("a")->text()) || str_contains($n->filter('td')->eq(2)->filter("a")->text(), $sub['hname'])) {
-                            $sub['phn1'] = $n->filter('td')->eq(1)->text();
-                            $sub['pdr'] = $n->filter('td')->eq(8)->text();
+                            $sub['phn1']  = $n->filter('td')->eq(1)->text();
+                            $sub['pdr']   = $n->filter('td')->eq(8)->text();
                             $sub['codds'] = $n->filter('td')->eq(13)->text();
                         }
                     } catch (\Throwable $th) {
@@ -885,13 +883,13 @@ class GoutteController extends Controller
             } catch (\Throwable $th) {
 
                 $sub["final1" . $hourse_name] = 0;
-                $sub['phn1'] = 1;
+                $sub['phn1']                  = 1;
             }
 
-            $final2 = "";
-            $rtg_no2 = "";
+            $final2          = "";
+            $rtg_no2         = "";
             $_3digit_rtg_arr = "";
-            $rrt = 0000;
+            $rrt             = 0000;
             try {
                 $craw2 = $goutteClient->request('GET', $sub["link2"]);
                 $craw2->filter('.center_heading')->each(function ($n) use (&$sub) {
@@ -910,14 +908,14 @@ class GoutteController extends Controller
                     $final2 .= $n->filter('td')->eq(0)->text() . " " . $n->filter('td')->eq(1)->text() . " " . $rtg_no2 . "<br>";
                     $sub[$sub['phn1']] = $final2;
                     if ($n->filter('td')->eq(1)->text() == "1") {
-                        $sub["lrtg_no2"] = $rtg_no2;
+                        $sub["lrtg_no2"]   = $rtg_no2;
                         $sub["lrtg_line2"] = $n->filter('td')->eq(0)->text() . " " . $n->filter('td')->eq(1)->text() . " " . $rtg_no2;
                     }
                     try {
                         if (str_contains($sub['hname'], $n->filter('td')->eq(2)->filter("a")->text()) || str_contains($n->filter('td')->eq(2)->filter("a")->text(), $sub['hname'])) {
-                            $sub['pi2'] = $n->filter('td')->eq(0)->text();
-                            $sub['phn2'] = $n->filter('td')->eq(1)->text();
-                            $sub['pdr1'] = $n->filter('td')->eq(8)->text();
+                            $sub['pi2']    = $n->filter('td')->eq(0)->text();
+                            $sub['phn2']   = $n->filter('td')->eq(1)->text();
+                            $sub['pdr1']   = $n->filter('td')->eq(8)->text();
                             $sub['ciodds'] = $n->filter('td')->eq(13)->text();
                         }
                     } catch (\Throwable $th) {
@@ -938,9 +936,9 @@ class GoutteController extends Controller
                 $craw3->filter('.dividend_tr')->each(function ($n) use (&$sub) {
                     try {
                         if (str_contains($sub['hname'], $n->filter('td')->eq(2)->filter("a")->text()) || str_contains($n->filter('td')->eq(2)->filter("a")->text(), $sub['hname'])) {
-                            $sub['pi3'] = $n->filter('td')->eq(0)->text();
-                            $sub['phn3'] = $n->filter('td')->eq(1)->text();
-                            $sub['pdr3'] = $n->filter('td')->eq(8)->text();
+                            $sub['pi3']     = $n->filter('td')->eq(0)->text();
+                            $sub['phn3']    = $n->filter('td')->eq(1)->text();
+                            $sub['pdr3']    = $n->filter('td')->eq(8)->text();
                             $sub['ciodds3'] = $n->filter('td')->eq(13)->text();
                         }
                     } catch (\Throwable $th) {
@@ -968,10 +966,10 @@ class GoutteController extends Controller
     public function australia_output()
     {
         $goutteClient = new Client();
-        $guzzleClient = new GuzzleClient(array(
+        $guzzleClient = new GuzzleClient([
             'timeout' => 60,
-            'verify' => false,
-        ));
+            'verify'  => false,
+        ]);
         $goutteClient->setClient($guzzleClient);
         $baseurl = "https://www.racingandsports.com.au/form-guide/thoroughbred/australia/bendigo/2024-10-30/R1";
 
@@ -996,12 +994,13 @@ class GoutteController extends Controller
     public function add_user(Request $req)
     {
         $number = $req->input('number');
-        $name = $req->input('name');
-        $e = DB::update('update user set name= ? where mobile = ?', [$name, $number]);
+        $name   = $req->input('name');
+        $e      = DB::update('update user set name= ? where mobile = ?', [$name, $number]);
         return view("add_user");
     }
 
-    public function uk_data_view(){
+    public function uk_data_view()
+    {
         return view("uk_data_view");
     }
 
@@ -1009,20 +1008,20 @@ class GoutteController extends Controller
     {
 
         $goutteClient = new Client();
-        $guzzleClient = new GuzzleClient(array(
+        $guzzleClient = new GuzzleClient([
             'timeout' => 60,
-            'verify' => false,
-        ));
+            'verify'  => false,
+        ]);
         $goutteClient->setClient($guzzleClient);
-        $url = $req->center;
-        $craw_dis = $goutteClient->request('GET', $url);
+        $url            = $req->center;
+        $craw_dis       = $goutteClient->request('GET', $url);
         $previouse_data = [];
-        $data = $craw_dis->filter(".RC-runnerRow")->each(function ($n) use ($guzzleClient, $previouse_data) {
+        $data           = $craw_dis->filter(".RC-runnerRow")->each(function ($n) use ($guzzleClient, $previouse_data) {
             try {
 
-                $no = $n->filter(".RC-runnerNumber__no")->text();
-                $form = $n->filter(".RC-runnerInfo__form")->text();
-                $horse_name = $n->filter(".RC-runnerMainWrapper")->text();
+                $no             = $n->filter(".RC-runnerNumber__no")->text();
+                $form           = $n->filter(".RC-runnerInfo__form")->text();
+                $horse_name     = $n->filter(".RC-runnerMainWrapper")->text();
                 $previouse_data = json_decode($guzzleClient->get("https://www.racingpost.com/profile/tab/horse/" . explode("/", $n->filter(".RC-runnerMainWrapper a")->attr('href'))[3] . "/theformismighty/form")->getBody()->getContents(), true)["raceRecords"]["lifetimeRecords"];
                 try {
                     $ptp = $previouse_data["PTP"]["bestRpr"];
@@ -1062,16 +1061,112 @@ class GoutteController extends Controller
                     $flat_races = 0;
                 }
                 return [
-                    "no"=>$no, "form"=>$form, "horse_name"=>$horse_name, "ptp"=>$ptp, 
-                    "hurdle"=>$hurdle, "rules_races"=>$rules_races, "chase"=>$chase, "nhf"=>$nhf,
-                    "all_wheater_races"=>$all_wheater_races, "flat_races"=>$flat_races
+                    "no"                => $no, "form"                      => $form, "horse_name"   => $horse_name, "ptp" => $ptp,
+                    "hurdle"            => $hurdle, "rules_races"           => $rules_races, "chase" => $chase, "nhf"      => $nhf,
+                    "all_wheater_races" => $all_wheater_races, "flat_races" => $flat_races,
                 ];
 
             } catch (\Throwable $th) {
             }
         });
 
-        return view("uk_data")->with("data",$data);
+        return view("uk_data")->with("data", $data);
 
+    }
+
+    public function australia_vpn(Request $req)
+    {
+        $goutteClient = new Client();
+        $guzzleClient = new GuzzleClient([
+            'timeout' => 60,
+            'verify'  => false,
+        ]);
+
+        $center_url   = $req->center_url;
+        $index        = $req->race_no;
+        $race_crowler = $goutteClient->request('GET', $center_url);
+
+        $race_no = $race_crowler->filter(".form-guide-meeting-upcoming-events-desktop a")->each(function ($n) {
+            return $n->attr('href');
+        });
+
+        $url         = "https://www.punters.com.au" . $race_no[$index] . "/#Overview";
+        
+        $craw_client = $goutteClient->request('GET', $url);
+
+        $race = $craw_client->filter(".form-guide-event-header__main")->each(function ($n) {
+            try {
+                return [
+                    $n->filter(".form-guide-event-header__race-title")->text(),
+                    $n->filter(".form-guide-event-header__detail-inner")->eq(2)->text() !== null ? (int) filter_var(
+                        $n->filter(".form-guide-event-header__detail-inner")->eq(2)->text(), FILTER_SANITIZE_NUMBER_INT) : 0,
+                    $n->filter(".event-number__pill--active")->text(),
+                ];
+            } catch (\Throwable $th) {
+                dd("issue while fetching race name and dist");
+            }
+        });
+
+        $participants = $craw_client->filter(".selection-runner__info")->each(function ($n) use ($goutteClient) {
+            try {
+                $runner_crawler = $goutteClient->request('GET',
+                    "https://www.punters.com.au" . $n->filter("a")->attr('href'));
+                $runner_data = $runner_crawler->filter(".timeline-box")->each(function ($node, $index) {
+                    if ($index < 2) {
+                        $tem = [];
+                        try {
+                            array_push($tem, $node->filter(".placed")->text());
+                        } catch (\Throwable $th) {
+                            array_push($tem, null);
+                        }
+                        try {
+                            array_push($tem, $node->filter(".dist")->text());
+                        } catch (\Throwable $th) {
+                            dd("dist");
+                        }
+
+                        try {
+                            array_push($tem, $node->filter("span")->eq(4)->text());
+                        } catch (\Throwable $th) {
+                            dd("span");
+                        }
+                        return $tem;
+                    }
+                });
+
+                $runner_data = array_filter($runner_data); // Remove null values
+
+                $zero_index  = $runner_data[0][0];
+                $first_index = $runner_data[1][0];
+
+                $pattern = '/(\d+)\.\s+([^()]+)\s+\(.*?(\d{2,3}(?:\.\d)?)kg\)/';
+                $m       = preg_match($pattern, $n->text(), $matches);
+
+                return [
+                    'number'                        => $m > 0 ? (int) $matches[1] : 0,
+                    'name'                          => $m > 0 ? $matches[2] : "Hourse Name",
+                    'weight'                        => $m > 0 ? $matches[3] : 0.0,
+                    'previous_position'             => isset($zero_index) ? (int) explode('th', $zero_index)[0] : 0,
+                    'previous_length'               => isset($zero_index) ? (float) explode('L', explode(')', $zero_index)[1])[0] : 0,
+                    'previous_to_previous_position' => isset($first_index) ? (int) explode('th', $first_index)[0] : 0,
+                    'previous_to_previous_length'   => isset($first_index) ? (float) explode('L', explode(')', $first_index)[1])[0] : 0,
+                    'privious_dist'                 => isset($runner_data[0][1]) ? (int) filter_var($runner_data[0][1], FILTER_SANITIZE_NUMBER_INT) : 0,
+                    'privious_to_previous_dist'     => isset($runner_data[1][1]) ? (int) filter_var($runner_data[1][1], FILTER_SANITIZE_NUMBER_INT) : 0,
+                    'winningTime_1'                 => preg_match('/Winning Time:\s*([\d:.]+)/', $runner_data[0][2], $m) ? $m[1] : 0,
+                    'winningTime_2'                 => preg_match('/Winning Time:\s*([\d:.]+)/', $runner_data[1][2], $m) ? $m[1] : 0,
+                    'weight1'                       => preg_match('/\([^\d]*?(\d{2,3})/', $zero_index, $m) ? (int) $m[1] : (isset($matches[3]) ? (int) $matches[3] : 0),
+                    'weight2'                       => preg_match('/\([^\d]*?(\d{2,3})/', $first_index, $m) ? (int) $m[1] : (isset($matches[3]) ? (int) $matches[3] : 0),
+                ];
+
+            } catch (\Throwable $th) {
+                dd($th);
+            }
+        });
+
+        return view('australia_punters_data', compact('race', 'participants'));
+    }
+
+    public function australia_vpn_view(){
+        return view("australia_form");
     }
 }
