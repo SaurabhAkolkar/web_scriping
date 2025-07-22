@@ -1090,8 +1090,8 @@ class GoutteController extends Controller
             return $n->attr('href');
         });
 
-        $url         = "https://www.punters.com.au" . $race_no[$index] . "/#Overview";
-        
+        $url = "https://www.punters.com.au" . $race_no[$index - 1] . "/#Overview";
+
         $craw_client = $goutteClient->request('GET', $url);
 
         $race = $craw_client->filter(".form-guide-event-header__main")->each(function ($n) {
@@ -1101,6 +1101,8 @@ class GoutteController extends Controller
                     $n->filter(".form-guide-event-header__detail-inner")->eq(2)->text() !== null ? (int) filter_var(
                         $n->filter(".form-guide-event-header__detail-inner")->eq(2)->text(), FILTER_SANITIZE_NUMBER_INT) : 0,
                     $n->filter(".event-number__pill--active")->text(),
+                    $n->filter(".meetings-selector__label")->text(),
+                    $n->filter(".form-guide-event-header__detail-time")->text(),
                 ];
             } catch (\Throwable $th) {
                 dd("issue while fetching race name and dist");
@@ -1136,28 +1138,48 @@ class GoutteController extends Controller
 
                 $runner_data = array_filter($runner_data); // Remove null values
 
-                $zero_index  = $runner_data[0][0];
-                $first_index = $runner_data[1][0];
+                if (count($runner_data) == 2) {
+                    $zero_index  = $runner_data[0][0];
+                    $first_index = $runner_data[1][0];
 
-                $pattern = '/(\d+)\.\s+([^()]+)\s+\(.*?(\d{2,3}(?:\.\d)?)kg\)/';
-                $m       = preg_match($pattern, $n->text(), $matches);
+                    $pattern = '/(\d+)\.\s+([^()]+)\s+\(.*?(\d{2,3}(?:\.\d)?)kg\)/';
+                    $m       = preg_match($pattern, $n->text(), $matches);
+                    return [
+                        'number'                        => $m > 0 ? (int) $matches[1] : 0,
+                        'name'                          => $m > 0 ? $matches[2] : "Hourse Name",
+                        'weight'                        => $m > 0 ? $matches[3] : 0.0,
+                        'previous_position'             => isset($zero_index) ? (int) explode('th', $zero_index)[0] : 0,
+                        'previous_length'               => isset($zero_index) ? (float) explode('L', explode(')', $zero_index)[1])[0] : 0,
+                        'previous_to_previous_position' => isset($first_index) ? (int) explode('th', $first_index)[0] : 0,
+                        'previous_to_previous_length'   => isset($first_index) ? (float) explode('L', explode(')', $first_index)[1])[0] : 0,
+                        'privious_dist'                 => isset($runner_data[0][1]) ? (int) filter_var($runner_data[0][1], FILTER_SANITIZE_NUMBER_INT) : 0,
+                        'privious_to_previous_dist'     => isset($runner_data[1][1]) ? (int) filter_var($runner_data[1][1], FILTER_SANITIZE_NUMBER_INT) : 0,
+                        'winningTime_1'                 => preg_match('/Winning Time:\s*([\d:.]+)/', $runner_data[0][2], $m) ? $m[1] : 0,
+                        'winningTime_2'                 => preg_match('/Winning Time:\s*([\d:.]+)/', $runner_data[1][2], $m) ? $m[1] : 0,
+                        'weight1'                       => preg_match('/\([^\d]*?(\d{2,3})/', $zero_index, $m) ? (int) $m[1] : (isset($matches[3]) ? (int) $matches[3] : 0),
+                        'weight2'                       => preg_match('/\([^\d]*?(\d{2,3})/', $first_index, $m) ? (int) $m[1] : (isset($matches[3]) ? (int) $matches[3] : 0),
+                    ];
+                } elseif (count($runner_data) == 1) {
+                    $zero_index  = $runner_data[0][0];
 
-                return [
-                    'number'                        => $m > 0 ? (int) $matches[1] : 0,
-                    'name'                          => $m > 0 ? $matches[2] : "Hourse Name",
-                    'weight'                        => $m > 0 ? $matches[3] : 0.0,
-                    'previous_position'             => isset($zero_index) ? (int) explode('th', $zero_index)[0] : 0,
-                    'previous_length'               => isset($zero_index) ? (float) explode('L', explode(')', $zero_index)[1])[0] : 0,
-                    'previous_to_previous_position' => isset($first_index) ? (int) explode('th', $first_index)[0] : 0,
-                    'previous_to_previous_length'   => isset($first_index) ? (float) explode('L', explode(')', $first_index)[1])[0] : 0,
-                    'privious_dist'                 => isset($runner_data[0][1]) ? (int) filter_var($runner_data[0][1], FILTER_SANITIZE_NUMBER_INT) : 0,
-                    'privious_to_previous_dist'     => isset($runner_data[1][1]) ? (int) filter_var($runner_data[1][1], FILTER_SANITIZE_NUMBER_INT) : 0,
-                    'winningTime_1'                 => preg_match('/Winning Time:\s*([\d:.]+)/', $runner_data[0][2], $m) ? $m[1] : 0,
-                    'winningTime_2'                 => preg_match('/Winning Time:\s*([\d:.]+)/', $runner_data[1][2], $m) ? $m[1] : 0,
-                    'weight1'                       => preg_match('/\([^\d]*?(\d{2,3})/', $zero_index, $m) ? (int) $m[1] : (isset($matches[3]) ? (int) $matches[3] : 0),
-                    'weight2'                       => preg_match('/\([^\d]*?(\d{2,3})/', $first_index, $m) ? (int) $m[1] : (isset($matches[3]) ? (int) $matches[3] : 0),
-                ];
-
+                    $pattern = '/(\d+)\.\s+([^()]+)\s+\(.*?(\d{2,3}(?:\.\d)?)kg\)/';
+                    $m       = preg_match($pattern, $n->text(), $matches);
+                    return [
+                        'number'                        => $m > 0 ? (int) $matches[1] : 0,
+                        'name'                          => $m > 0 ? $matches[2] : "Hourse Name",
+                        'weight'                        => $m > 0 ? $matches[3] : 0.0,
+                        'previous_position'             => isset($zero_index) ? (int) explode('th', $zero_index)[0] : 0,
+                        'previous_length'               => isset($zero_index) ? (float) explode('L', explode(')', $zero_index)[1])[0] : 0,
+                        'previous_to_previous_position' => 0,
+                        'previous_to_previous_length'   => 0,
+                        'privious_dist'                 => isset($runner_data[0][1]) ? (int) filter_var($runner_data[0][1], FILTER_SANITIZE_NUMBER_INT) : 0,
+                        'privious_to_previous_dist'     => 0,
+                        'winningTime_1'                 => preg_match('/Winning Time:\s*([\d:.]+)/', $runner_data[0][2], $m) ? $m[1] : 0,
+                        'winningTime_2'                 => 0,
+                        'weight1'                       => preg_match('/\([^\d]*?(\d{2,3})/', $zero_index, $m) ? (int) $m[1] : (isset($matches[3]) ? (int) $matches[3] : 0),
+                        'weight2'                       => 0,
+                    ];
+                }
             } catch (\Throwable $th) {
                 dd($th);
             }
@@ -1166,7 +1188,8 @@ class GoutteController extends Controller
         return view('australia_punters_data', compact('race', 'participants'));
     }
 
-    public function australia_vpn_view(){
+    public function australia_vpn_view()
+    {
         return view("australia_form");
     }
 }
