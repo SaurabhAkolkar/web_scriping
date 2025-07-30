@@ -1086,12 +1086,14 @@ class GoutteController extends Controller
         $index        = $req->race_no;
         $race_crowler = $goutteClient->request('GET', $center_url);
 
-        $race_no = $race_crowler->filter(".form-guide-meeting-upcoming-events-desktop a")->each(function ($n) {
+        $race_no = $race_crowler->filter(".form-guide-meeting-upcoming-meetings__meeting-events a")->each(function ($n) {
             return $n->attr('href');
         });
+        
+        //dd($race_no);
 
         $url = "https://www.punters.com.au" . $race_no[$index - 1] . "/#Overview";
-
+        //$url = "https://www.punters.com.au/form-guide/horses/albury-20250718/mws-wealth-professionals-country-boosted-hcp-c1-race-1/#Overview";
         $craw_client = $goutteClient->request('GET', $url);
 
         $race = $craw_client->filter(".form-guide-event-header__main")->each(function ($n) {
@@ -1108,6 +1110,7 @@ class GoutteController extends Controller
                 dd("issue while fetching race name and dist");
             }
         });
+        //dd($race);
 
         $participants = $craw_client->filter(".selection-runner__info")->each(function ($n) use ($goutteClient) {
             try {

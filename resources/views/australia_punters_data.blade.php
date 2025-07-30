@@ -1409,6 +1409,601 @@
         </tbody>
     </table>
 
+
+
+
+    <div style="page-break-before: always;"></div>
+    <!-- Display Race Title and Distance -->
+    <h2>Formula 10 : {{ $race[0][2] }} : {{ $race[0][4] }} | {{ $race[0][3] }} | {{ $race[0][0] }} -
+        {{ $race[0][1] }} | {{ $race[0][1] / 100 }} | 100
+        | 0.18</h2>
+
+
+    <!-- Race Participants Table -->
+    <table>
+        <thead>
+            <tr>
+                <th>1</th>
+                <th>PL-PPL</th>
+                <th>F9,4-3 = ANS</th>
+                <th>ANS</th>
+                <th>PF</th>
+                <th>F10, 3-2 = ANS</th>
+                <th>IMP LTG (f56+3)</th>
+                <th>CD-PD</th>
+                <th>F5 8 ANS</th>
+                <th></th>
+
+            </tr>
+        </thead>
+        <tbody>
+            @foreach ($participants as $participant)
+                @php
+                    $priouse_to_priouse_time = preg_match('/(\d+):(\d+)\.(\d+)/', $participant['winningTime_2'], $m)
+                        ? round($m[1] * 60 + $m[2] + $m[3] / 1000, 2)
+                        : '0.00';
+                    $priouse_time = preg_match('/(\d+):(\d+)\.(\d+)/', $participant['winningTime_1'], $m)
+                        ? round($m[1] * 60 + $m[2] + $m[3] / 1000, 2)
+                        : '0.00';
+                    $privious_to_previous_dist = $participant['privious_to_previous_dist'];
+                    $previous_dist = $participant['privious_dist'];
+                    $previous_weight = $participant['weight1'];
+                    $previous_to_previous_weight = $participant['weight2'];
+                    $current_dist = $race[0][1];
+
+                    try {
+                        $g1 =
+                            $privious_to_previous_dist +
+                            ($previous_dist - $privious_to_previous_dist) *
+                                ($priouse_to_priouse_time / $privious_to_previous_dist) +
+                            ($previous_weight - $previous_to_previous_weight) * 0.36 -
+                            (0 - 0) * 0.15;
+                    } catch (\Throwable $th) {
+                        $g1 = 0;
+                    }
+
+                    try {
+                        $g2 =
+                            $priouse_to_priouse_time +
+                            ($previous_dist - $privious_to_previous_dist) *
+                                ($priouse_to_priouse_time / $privious_to_previous_dist) +
+                            ($previous_weight - $previous_to_previous_weight) * 0.36 -
+                            (0 - 0) * 0.15;
+                    } catch (\Throwable $th) {
+                        $g2 = 0;
+                    }
+
+                    try {
+                        $e3 =
+                            (($priouse_to_priouse_time * $current_dist) / $privious_to_previous_dist +
+                                ($priouse_time * $current_dist) / $previous_dist) /
+                                2 +
+                            ($participant['weight'] - $previous_weight) * 0.35 -
+                            (2 - 0) * 0.15;
+                    } catch (\Throwable $th) {
+                        $e3 = 0;
+                    }
+
+                    try {
+                        $g3 =
+                            $priouse_time +
+                            ($current_dist - $previous_dist) * ($priouse_time / $previous_dist) +
+                            ($participant['weight'] - $previous_weight) * 0.35 -
+                            (2 - 0) * 0.15;
+                    } catch (\Throwable $th) {
+                        $g3 = 0;
+                    }
+
+                    try {
+                        $h3 = round(
+                            (((($priouse_time * ($current_dist / $previous_dist)) ^ 1.04) +
+                                $priouse_to_priouse_time * ($current_dist / $privious_to_previous_dist)) ^
+                                1.04) /
+                                2 +
+                                ($participant['weight'] - $previous_to_previous_weight) * 0.4 -
+                                (2 - 0) * 0.1,
+                            2,
+                        );
+                    } catch (\Throwable $th) {
+                        $h3 = 0;
+                    }
+
+                    $f3_3 = round($previous_dist / 100 - $privious_to_previous_dist / 100);
+                    $f3_4 = round($g2 * $f3_3);
+                    $f3_5 = round($g1 + $f3_4);
+                    $f3_6 = round($current_dist / 100 - $previous_dist / 100);
+                    $f3_7 = round($g2 * $f3_6);
+                    $f3_8 = $f3_7 + $f3_5;
+                    $f3_10 = $previous_dist - $privious_to_previous_dist;
+                    $f3_11 = $f3_8 / 100;
+                    $f3_12 = $g2 - $priouse_time;
+                    $f3_13 = $g3 - $e3;
+                    $f3_14 = $f3_12 + $f3_11;
+                    $f3_15 = $f3_13 + $f3_14;
+
+                    $f4_3 = $f3_3;
+                    $f4_4 = $f3_5;
+                    $f4_5 = $f3_6;
+                    $f4_6 = $f3_8;
+                    $f4_7 = $f4_6 / 100;
+                    $f4_8 = $f4_3 + $f4_5;
+                    $f4_9 = $f3_14;
+                    $f4_10 = $f4_9 + $f3_13;
+                    $f4_11 = $f4_10 - $f4_9;
+                    $f4_12 = $f4_7 + $f4_11;
+
+                    $fr5_3 = round(round($g1) - round($privious_to_previous_dist), 2);
+                    $fr5_6 = $f4_4 - $previous_dist;
+                    $F58_ANS = $f4_6 - $f4_4;
+
+                    if ($fr5_6 >= 0) {
+                        $fr5_9 = $fr5_6 + $fr5_3;
+                    } else {
+                        $fr5_9 = $fr5_6 - $fr5_3;
+                    }
+                @endphp
+                <tr>
+                    <td style="width: 6%">{{ $participant['number'] }}</td>
+                    <td style="font-size: 30px;width: 7%;color:red"><b>{{ $participant['previous_length']-$participant['previous_to_previous_length'] }}<b></td>
+                    <td style="font-size: 20px;width: 7%;color: crimson"><b>
+                        {{ ($participant['previous_length']-$participant['previous_position']) - ($participant['previous_position']- $participant['previous_to_previous_position'] ) }}
+                    <b></td>
+                    <td style="font-size: 20px;width: 7%"><b>
+                    
+                    </b></td>
+                    <td style="font-size: 20px;width: 7%"><b>{{ $participant['previous_position']  }}</b></td>
+                    <td style="font-size: 20px;width: 7%"><b>
+                        {{ (($participant['previous_length']-$participant['previous_position']) - ($participant['previous_position']- $participant['previous_to_previous_position'] ))  - ($participant['previous_length']-$participant['previous_to_previous_length']) }}
+                    </b></td>
+                    <td style="width: 10%">
+                        {{
+                            (($F58_ANS - ($race[0][1] - $previous_dist))-($f4_6 - $race[0][1] - $fr5_9)) - (($F58_ANS - ($race[0][1] - $previous_dist))-($f4_6 - $race[0][1]))   
+                        }}
+                    </td>
+                    <td style="width: 7%">{{ $race[0][1] - $previous_dist }}</td>
+                    <td style="font-size: 25px;font-weight: 700;text-align: end;width: 7%;">{{ $F58_ANS }}</td>
+                    <td style="background-color: blue;width: 1%"></td>
+
+                </tr>
+            @endforeach
+        </tbody>
+    </table>
+
+
+    <div style="page-break-before: always;"></div>
+    <!-- Display Race Title and Distance -->
+    <h2>Formula 11 : {{ $race[0][2] }} : {{ $race[0][4] }} | {{ $race[0][3] }} | {{ $race[0][0] }} -
+        {{ $race[0][1] }} | {{ $race[0][1] / 100 }} | 100
+        | 0.18</h2>
+
+
+    <!-- Race Participants Table -->
+    <table>
+        <thead>
+            <tr>
+                <th>1</th>
+                <th>ANS</th>
+                <th>PF</th>
+                <th>F10, 3-2 = ANS</th>
+                <th>IMP LTG (f56+3)</th>
+                <th>CD-PD</th>
+                <th>F5 8 ANS</th>
+                <th></th>
+
+            </tr>
+        </thead>
+        <tbody>
+            @foreach ($participants as $participant)
+                @php
+                    $priouse_to_priouse_time = preg_match('/(\d+):(\d+)\.(\d+)/', $participant['winningTime_2'], $m)
+                        ? round($m[1] * 60 + $m[2] + $m[3] / 1000, 2)
+                        : '0.00';
+                    $priouse_time = preg_match('/(\d+):(\d+)\.(\d+)/', $participant['winningTime_1'], $m)
+                        ? round($m[1] * 60 + $m[2] + $m[3] / 1000, 2)
+                        : '0.00';
+                    $privious_to_previous_dist = $participant['privious_to_previous_dist'];
+                    $previous_dist = $participant['privious_dist'];
+                    $previous_weight = $participant['weight1'];
+                    $previous_to_previous_weight = $participant['weight2'];
+                    $current_dist = $race[0][1];
+
+                    try {
+                        $g1 =
+                            $privious_to_previous_dist +
+                            ($previous_dist - $privious_to_previous_dist) *
+                                ($priouse_to_priouse_time / $privious_to_previous_dist) +
+                            ($previous_weight - $previous_to_previous_weight) * 0.36 -
+                            (0 - 0) * 0.15;
+                    } catch (\Throwable $th) {
+                        $g1 = 0;
+                    }
+
+                    try {
+                        $g2 =
+                            $priouse_to_priouse_time +
+                            ($previous_dist - $privious_to_previous_dist) *
+                                ($priouse_to_priouse_time / $privious_to_previous_dist) +
+                            ($previous_weight - $previous_to_previous_weight) * 0.36 -
+                            (0 - 0) * 0.15;
+                    } catch (\Throwable $th) {
+                        $g2 = 0;
+                    }
+
+                    try {
+                        $e3 =
+                            (($priouse_to_priouse_time * $current_dist) / $privious_to_previous_dist +
+                                ($priouse_time * $current_dist) / $previous_dist) /
+                                2 +
+                            ($participant['weight'] - $previous_weight) * 0.35 -
+                            (2 - 0) * 0.15;
+                    } catch (\Throwable $th) {
+                        $e3 = 0;
+                    }
+
+                    try {
+                        $g3 =
+                            $priouse_time +
+                            ($current_dist - $previous_dist) * ($priouse_time / $previous_dist) +
+                            ($participant['weight'] - $previous_weight) * 0.35 -
+                            (2 - 0) * 0.15;
+                    } catch (\Throwable $th) {
+                        $g3 = 0;
+                    }
+
+                    try {
+                        $h3 = round(
+                            (((($priouse_time * ($current_dist / $previous_dist)) ^ 1.04) +
+                                $priouse_to_priouse_time * ($current_dist / $privious_to_previous_dist)) ^
+                                1.04) /
+                                2 +
+                                ($participant['weight'] - $previous_to_previous_weight) * 0.4 -
+                                (2 - 0) * 0.1,
+                            2,
+                        );
+                    } catch (\Throwable $th) {
+                        $h3 = 0;
+                    }
+
+                    $f3_3 = round($previous_dist / 100 - $privious_to_previous_dist / 100);
+                    $f3_4 = round($g2 * $f3_3);
+                    $f3_5 = round($g1 + $f3_4);
+                    $f3_6 = round($current_dist / 100 - $previous_dist / 100);
+                    $f3_7 = round($g2 * $f3_6);
+                    $f3_8 = $f3_7 + $f3_5;
+                    $f3_10 = $previous_dist - $privious_to_previous_dist;
+                    $f3_11 = $f3_8 / 100;
+                    $f3_12 = $g2 - $priouse_time;
+                    $f3_13 = $g3 - $e3;
+                    $f3_14 = $f3_12 + $f3_11;
+                    $f3_15 = $f3_13 + $f3_14;
+
+                    $f4_3 = $f3_3;
+                    $f4_4 = $f3_5;
+                    $f4_5 = $f3_6;
+                    $f4_6 = $f3_8;
+                    $f4_7 = $f4_6 / 100;
+                    $f4_8 = $f4_3 + $f4_5;
+                    $f4_9 = $f3_14;
+                    $f4_10 = $f4_9 + $f3_13;
+                    $f4_11 = $f4_10 - $f4_9;
+                    $f4_12 = $f4_7 + $f4_11;
+
+                    $fr5_3 = round(round($g1) - round($privious_to_previous_dist), 2);
+                    $fr5_6 = $f4_4 - $previous_dist;
+                    $F58_ANS = $f4_6 - $f4_4;
+
+                    if ($fr5_6 >= 0) {
+                        $fr5_9 = $fr5_6 + $fr5_3;
+                    } else {
+                        $fr5_9 = $fr5_6 - $fr5_3;
+                    }
+                @endphp
+                <tr>
+                    <td style="width: 6%">{{ $participant['number'] }}</td>
+                    
+                    <td style="font-size: 20px;width: 7%"><b>
+                    
+                    </b></td>
+                    <td style="font-size: 20px;width: 7%"><b>{{ $participant['previous_position']  }}</b></td>
+                    <td style="font-size: 20px;width: 7%"><b>
+                        {{ (($participant['previous_length']-$participant['previous_position']) - ($participant['previous_position']- $participant['previous_to_previous_position'] ))  - ($participant['previous_length']-$participant['previous_to_previous_length']) }}
+                    </b></td>
+                    <td style="width: 10%">
+                        {{
+                            (($F58_ANS - ($race[0][1] - $previous_dist))-($f4_6 - $race[0][1] - $fr5_9)) - (($F58_ANS - ($race[0][1] - $previous_dist))-($f4_6 - $race[0][1]))   
+                        }}
+                    </td>
+                    <td style="width: 7%">{{ $race[0][1] - $previous_dist }}</td>
+                    <td style="font-size: 25px;font-weight: 700;text-align: end;width: 7%;">{{ $F58_ANS }}</td>
+                    <td style="background-color: blue;width: 1%"></td>
+
+                </tr>
+            @endforeach
+        </tbody>
+    </table>
+
+
+
+    <div style="page-break-before: always;"></div>
+
+    <!-- Display Race Title and Distance -->
+    <h2>Formula 12 : {{ $race[0][2] }} : {{ $race[0][4] }} | {{ $race[0][3] }} | {{ $race[0][0] }} -
+        {{ $race[0][1] }} | {{ $race[0][1] / 100 }} | 100
+        | 0.18</h2>
+
+    <!-- Race Participants Table -->
+    <table>
+        <thead>
+            <tr>
+                <th>A</th>
+                <th>PPF PPL</th>
+                <th>PF PL</th>
+                <th>ANS</th>
+                <th>E</th>
+                <th>PF</th>
+                <th>Budden</th>
+                <th>PF-PPF</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>*</td>
+                <td>{{ $race[0][1] }}</td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+            </tr>
+            <tr>
+                <td>*</td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+            </tr>
+            @foreach ($participants as $participant)
+                @php
+                    $priouse_to_priouse_time = preg_match('/(\d+):(\d+)\.(\d+)/', $participant['winningTime_2'], $m)
+                        ? $m[1] * 60 + $m[2] + $m[3] / 1000
+                        : '0.00';
+                    $priouse_time = preg_match('/(\d+):(\d+)\.(\d+)/', $participant['winningTime_1'], $m)
+                        ? $m[1] * 60 + $m[2] + $m[3] / 1000
+                        : '0.00';
+                    $privious_to_previous_dist = $participant['privious_to_previous_dist'];
+                    $previous_dist = $participant['privious_dist'];
+                    $previous_weight = $participant['weight1'];
+                    $previous_to_previous_weight = $participant['weight2'];
+                    $current_dist = $race[0][1];
+
+                    try {
+                        $g1 =
+                            $privious_to_previous_dist +
+                            ($previous_dist - $privious_to_previous_dist) *
+                                ($priouse_to_priouse_time / $privious_to_previous_dist) +
+                            ($previous_weight - $previous_to_previous_weight) * 0.36 -
+                            (0 - 0) * 0.15;
+                    } catch (\Throwable $th) {
+                        $g1 = 0;
+                    }
+
+                    try {
+                        $g2 =
+                            $priouse_to_priouse_time +
+                            ($previous_dist - $privious_to_previous_dist) *
+                                ($priouse_to_priouse_time / $privious_to_previous_dist) +
+                            ($previous_weight - $previous_to_previous_weight) * 0.36 -
+                            (0 - 0) * 0.15;
+                    } catch (\Throwable $th) {
+                        $g2 = 0;
+                    }
+
+                    try {
+                        $e3 =
+                            (($priouse_to_priouse_time * $current_dist) / $privious_to_previous_dist +
+                                ($priouse_time * $current_dist) / $previous_dist) /
+                                2 +
+                            ($participant['weight'] - $previous_weight) * 0.35 -
+                            (2 - 0) * 0.15;
+                    } catch (\Throwable $th) {
+                        $e3 = 0;
+                    }
+
+                    try {
+                        $g3 =
+                            $priouse_time +
+                            ($current_dist - $previous_dist) * ($priouse_time / $previous_dist) +
+                            ($participant['weight'] - $previous_weight) * 0.35 -
+                            (2 - 0) * 0.15;
+                    } catch (\Throwable $th) {
+                        $g3 = 0;
+                    }
+
+                    try {
+                        $h3 = round(
+                            (((($priouse_time * ($current_dist / $previous_dist)) ^ 1.04) +
+                                $priouse_to_priouse_time * ($current_dist / $privious_to_previous_dist)) ^
+                                1.04) /
+                                2 +
+                                ($participant['weight'] - $previous_to_previous_weight) * 0.4 -
+                                (2 - 0) * 0.1,
+                            2,
+                        );
+                    } catch (\Throwable $th) {
+                        $h3 = 0;
+                    }
+                @endphp
+                <tr>
+                    <td style="font-size: 30px;width: 10%;">{{ $participant['number'] }}</td>
+                    <td>{{ round($participant['previous_to_previous_position']) }}</td>
+                    <td>{{ $participant['previous_position'] }}</td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td style="color: blueviolet;font-size: 20px"></td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td></td>
+                    <td>{{ $participant['previous_to_previous_length'] }}</td>
+                    <td style="font-size: 20px">{{ round($participant['previous_length']) }}</td>
+                    <td style="font-size: 30px;width: 10%;color: crimson;text-align: center">
+                        {{ round($participant['previous_to_previous_length']) + round($participant['previous_length']) }}
+                    </td>
+                    <td></td>
+                    <td style="font-size: 25px;font-weight: 700;text-align: end;width: 7%;">{{ $participant['previous_position'] }}</td>
+                    <td>{{ (($participant['previous_length']-$participant['previous_position']) - ($participant['previous_position']- $participant['previous_to_previous_position'] ))  - ($participant['previous_length']-$participant['previous_to_previous_length']) }}</td>
+                    <td style="color: blueviolet;font-size: 20px">{{ $participant['previous_position'] - $participant['previous_to_previous_position'] }}</td>
+                    
+                </tr>
+            @endforeach
+        </tbody>
+    </table>
+
+
+        <!-- Display Race Title and Distance -->
+        <h2>Formula 13 : {{ $race[0][2] }} : {{ $race[0][4] }} | {{ $race[0][3] }} | {{ $race[0][0] }} -
+            {{ $race[0][1] }} | {{ $race[0][1] / 100 }} | 100
+            | 0.18</h2>
+    
+        <!-- Race Participants Table -->
+        <table>
+            <thead>
+                <tr>
+                    <th>A</th>
+                    <th>PPF PPL</th>
+                    <th>PF PL</th>
+                    <th>ANS</th>
+                    <th>E</th>
+                    <th>PF</th>
+                    <th>Budden</th>
+                    <th>PF-PPF</th>
+                    <th>***</th>
+                    <th>******</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>*</td>
+                    <td>{{ $race[0][1] }}</td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                </tr>
+               
+                @foreach ($participants as $participant)
+                    @php
+                        $priouse_to_priouse_time = preg_match('/(\d+):(\d+)\.(\d+)/', $participant['winningTime_2'], $m)
+                            ? $m[1] * 60 + $m[2] + $m[3] / 1000
+                            : '0.00';
+                        $priouse_time = preg_match('/(\d+):(\d+)\.(\d+)/', $participant['winningTime_1'], $m)
+                            ? $m[1] * 60 + $m[2] + $m[3] / 1000
+                            : '0.00';
+                        $privious_to_previous_dist = $participant['privious_to_previous_dist'];
+                        $previous_dist = $participant['privious_dist'];
+                        $previous_weight = $participant['weight1'];
+                        $previous_to_previous_weight = $participant['weight2'];
+                        $current_dist = $race[0][1];
+    
+                        try {
+                            $g1 =
+                                $privious_to_previous_dist +
+                                ($previous_dist - $privious_to_previous_dist) *
+                                    ($priouse_to_priouse_time / $privious_to_previous_dist) +
+                                ($previous_weight - $previous_to_previous_weight) * 0.36 -
+                                (0 - 0) * 0.15;
+                        } catch (\Throwable $th) {
+                            $g1 = 0;
+                        }
+    
+                        try {
+                            $g2 =
+                                $priouse_to_priouse_time +
+                                ($previous_dist - $privious_to_previous_dist) *
+                                    ($priouse_to_priouse_time / $privious_to_previous_dist) +
+                                ($previous_weight - $previous_to_previous_weight) * 0.36 -
+                                (0 - 0) * 0.15;
+                        } catch (\Throwable $th) {
+                            $g2 = 0;
+                        }
+    
+                        try {
+                            $e3 =
+                                (($priouse_to_priouse_time * $current_dist) / $privious_to_previous_dist +
+                                    ($priouse_time * $current_dist) / $previous_dist) /
+                                    2 +
+                                ($participant['weight'] - $previous_weight) * 0.35 -
+                                (2 - 0) * 0.15;
+                        } catch (\Throwable $th) {
+                            $e3 = 0;
+                        }
+    
+                        try {
+                            $g3 =
+                                $priouse_time +
+                                ($current_dist - $previous_dist) * ($priouse_time / $previous_dist) +
+                                ($participant['weight'] - $previous_weight) * 0.35 -
+                                (2 - 0) * 0.15;
+                        } catch (\Throwable $th) {
+                            $g3 = 0;
+                        }
+    
+                        try {
+                            $h3 = round(
+                                (((($priouse_time * ($current_dist / $previous_dist)) ^ 1.04) +
+                                    $priouse_to_priouse_time * ($current_dist / $privious_to_previous_dist)) ^
+                                    1.04) /
+                                    2 +
+                                    ($participant['weight'] - $previous_to_previous_weight) * 0.4 -
+                                    (2 - 0) * 0.1,
+                                2,
+                            );
+                        } catch (\Throwable $th) {
+                            $h3 = 0;
+                        }
+
+                        $f13_col_budden = (($participant['previous_length']-$participant['previous_position']) - ($participant['previous_position']- $participant['previous_to_previous_position'] ))  - ($participant['previous_length']-$participant['previous_to_previous_length']);
+                    @endphp
+                    <tr>
+                        <td style="font-size: 30px;width: 10%;">{{ $participant['number'] }}</td>
+                        <td>{{ round($participant['previous_to_previous_position']) }}</td>
+                        <td>{{ $participant['previous_position'] }}</td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td style="color: blueviolet;font-size: 20px"></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td></td>
+                        <td>{{ $participant['previous_to_previous_length'] }}</td>
+                        <td style="font-size: 20px">{{ round($participant['previous_length']) }}</td>
+                        <td style="font-size: 30px;width: 10%;color: crimson;text-align: center">
+                            {{ $participant['previous_length'] - $participant['previous_to_previous_length'] }}
+                        </td>
+                        <td>{{ abs($participant['previous_length'] - $participant['previous_to_previous_length']) }}</td>
+                        <td style="font-size: 25px;font-weight: 700;text-align: end;width: 7%;">{{ $participant['previous_position'] }}</td>
+                        <td>{{ $f13_col_budden }}</td>
+                        <td style="color: blueviolet;font-size: 20px">{{ $participant['previous_position'] - $participant['previous_to_previous_position'] }}/{{ $f13_col_budden + abs($participant['previous_length'] - $participant['previous_to_previous_length']) }}</td>
+                        <td></td>
+                        <td style="font-size: 25px;font-weight: 700;text-align: center;width: 7%;">({{ $participant['previous_position'] }})</td>
+                        
+                    </tr>
+                @endforeach
+            </tbody>
+        </table>
+
 </body>
 
 </html>
